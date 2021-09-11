@@ -22,12 +22,12 @@ func main() {
 	g := New()
 
 	// First gear
-	hole(g, Point(D/2, 0, 0), HD/2)
-	trace(g, gearP(N, PA, P), Point(D/2, 0, 0))
+	hole(g, X(D/2), HD/2)
+	trace(g, gearP(N, PA, P), X(D/2))
 
 	// Second gear
-	hole(g, Point(-D/2, 0, 0), HD/2)
-	trace(g, gearP(N, PA, P), Point(-D/2, 0, 0))
+	hole(g, X(-D/2), HD/2)
+	trace(g, gearP(N, PA, P), X(-D/2))
 
 	fmt.Printf("%v\n", g)
 }
@@ -40,8 +40,8 @@ func trace(g *GCode, path []Tuple, offset Tuple) {
 
 // Make a hole at center point with given radius.
 func hole(g *GCode, point Tuple, radius float64) {
-	g.GotoXY(point.Sub(Point(radius, 0, 0)))
-	g.CircleCWRel(Point(radius, 0, 0))
+	g.GotoXY(point.Sub(X(radius)))
+	g.CircleCWRel(X(radius))
 }
 
 // Gear terms:
@@ -65,7 +65,7 @@ func toRad(a float64) float64 {
 	return a * math.Pi / 180
 }
 
-// Point on involute curve at specified angle, see https://en.wikipedia.org/wiki/Involute
+// Point on involute curve at specified angle in degrees, see https://en.wikipedia.org/wiki/Involute
 // Cartesian:
 //	x = a * ( cos(t) + t * sin(t))
 //	y = a * ( sin(t) - t * cos(t))
@@ -79,10 +79,9 @@ func toRad(a float64) float64 {
 // For angle from circle radius: t^2 = (r/a)^2 - 1
 func involutePoint(angle, radius float64) Tuple {
 	angle = toRad(angle) // Multiplication must be in radians.
-	return Point(
-		math.Cos(angle)+angle*math.Sin(angle),
-		math.Sin(angle)-angle*math.Cos(angle),
-		0).MultScalar(radius)
+	cos := math.Cos(angle)
+	sin := math.Sin(angle)
+	return XY(cos+angle*sin, sin-angle*cos).MultScalar(radius)
 }
 
 func involuteAngle(radius, outrad float64) float64 {
@@ -137,18 +136,18 @@ func gearP(nteeth int, pressureAngleDeg float64, diametralPitch float64) []Tuple
 
 	// Center of the fillet arc, involute makes a ~240deg angle with fillet arc.
 	// The fillet arc runs from the root to the working depth of the gear.
-	center := RotationZ(toRad(60)).MultTuple(Point(-filletrad, 0, 0)).Add(Point(workDiameter/2, 0, 0))
+	center := RotationZ(toRad(60)).MultTuple(X(-filletrad)).Add(X(workDiameter / 2))
 
 	// Trace the fillet arc from ~root-circle to working depth at involute arc starting Y-level
 	var a float64
 	for a = 180.0; a > 60.0; a -= angleStepDeg * 2.5 {
 		r := toRad(a)
-		tooth = append(tooth, Point(math.Cos(r), math.Sin(r), 0).MultScalar(filletrad).Add(center))
+		tooth = append(tooth, XY(math.Cos(r), math.Sin(r)).MultScalar(filletrad).Add(center))
 	}
 	if a != 60.0 {
 		// Add the last point if we did not reach the working depth
 		r := toRad(60)
-		tooth = append(tooth, Point(math.Cos(r), math.Sin(r), 0).MultScalar(filletrad).Add(center))
+		tooth = append(tooth, XY(math.Cos(r), math.Sin(r)).MultScalar(filletrad).Add(center))
 	}
 
 	// Calculate the maximum involute angle to intersect at the outside radius
@@ -174,9 +173,9 @@ func gearP(nteeth int, pressureAngleDeg float64, diametralPitch float64) []Tuple
 	// Also add a point in the middle of the outside linear segment connecting
 	// both sides of the tooth. This will help the caller to attach a
 	// tool-compensated path at that point.
-	mirror := []Tuple{Point(-tooth[len(tooth)-1].X(), 0, 0)}
+	mirror := []Tuple{X(-tooth[len(tooth)-1].X())}
 	for i := len(tooth) - 1; i >= 0; i-- {
-		mirror = append(mirror, Point(tooth[i].X(), -tooth[i].Y(), 0))
+		mirror = append(mirror, XY(tooth[i].X(), -tooth[i].Y()))
 	}
 	tooth = append(tooth, mirror...)
 
