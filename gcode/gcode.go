@@ -1,7 +1,11 @@
 // Package gcode provides methods used to generate G-Code.
 package gcode
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+	"time"
+)
 
 // GCode represents a G-Code design.
 type GCode struct {
@@ -10,7 +14,13 @@ type GCode struct {
 
 // New returns a new gcode design.
 func New() *GCode {
-	return &GCode{}
+	const timeFmt = "2006-01-02 15:04:05"
+	now := time.Now().Local()
+	return &GCode{
+		steps: []*Step{
+			{s: fmt.Sprintf(prologue, now.Format(timeFmt))},
+		},
+	}
 }
 
 // String converts the design to a string.
@@ -35,3 +45,17 @@ func (g *GCode) Position() Tuple {
 	}
 	return g.steps[len(g.steps)-1].pos
 }
+
+var prologue = `(go-gcode compiled code, do not change)
+(%v)
+(-- prologue begin --)
+G17 ( Use XY plane )
+G21 ( Use mm )
+G40 ( Cancel cutter radius compensation )
+G49 ( Cancel tool length compensation )
+G54 ( Default coordinate system )
+G80 ( Cancel canned cycle )
+G90 ( Use absolute distance mode )
+G94 ( Units Per Minute feed rate mode )
+G64 ( Enable path blending for best speed )
+(-- prologue end --)`

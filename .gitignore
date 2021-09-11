@@ -1,3 +1,4 @@
+*.gcode
 *.png
 *.ppm
 *.sh

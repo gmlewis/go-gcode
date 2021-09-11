@@ -1,5 +1,8 @@
 // involute-gear generates two gears and is based on the example here:
 // https://gitlab.com/gcmc/gcmc/blob/master/example/involute-gear.gcmc
+//
+// Usage:
+//   go run examples/involute-gear/main.go > gear.gcode
 package main
 
 import (
@@ -19,17 +22,24 @@ const (
 )
 
 func main() {
+	g := gcmc()
+	fmt.Printf("%v\n", g)
+}
+
+func gcmc() *GCode {
 	g := New()
+
+	g.Feedrate(600)
 
 	// First gear
 	hole(g, X(D/2), HD/2)
-	trace(g, gearP(N, PA, P), X(D/2))
+	trace(g, gearP(g, N, PA, P), X(D/2))
 
 	// Second gear
 	hole(g, X(-D/2), HD/2)
-	trace(g, gearP(N, PA, P), X(-D/2))
+	trace(g, gearP(g, N, PA, P), X(-D/2))
 
-	fmt.Printf("%v\n", g)
+	return g
 }
 
 // Trace a path at given offset.
@@ -94,7 +104,7 @@ func involuteAngle(radius, outrad float64) float64 {
 // - diametralPitch	Diametral pitch (teeth/length)
 //
 // Return a vectorlist with outer points of the gear centered at [0,0]
-func gearP(nteeth int, pressureAngleDeg float64, diametralPitch float64) []Tuple {
+func gearP(g *GCode, nteeth int, pressureAngleDeg float64, diametralPitch float64) []Tuple {
 	// The routine gets in serious trouble if you make the pressure angle
 	// too large or too small. Warn the user if such case occurs.
 	if pressureAngleDeg > 24.6 {
@@ -124,11 +134,11 @@ func gearP(nteeth int, pressureAngleDeg float64, diametralPitch float64) []Tuple
 	log.Printf("workDiameter=%v", workDiameter)
 
 	// Show the different diameters:
-	// hole([0, 0], pitchDiameter/2)
-	// hole([0, 0], baseDiameter/2)
-	// hole([0, 0], outsideDiameter/2)
-	// hole([0, 0], rootDiameter/2)
-	// hole([0, 0], workDiameter/2)
+	hole(g, XY(0, 0), pitchDiameter/2)
+	hole(g, XY(0, 0), baseDiameter/2)
+	hole(g, XY(0, 0), outsideDiameter/2)
+	hole(g, XY(0, 0), rootDiameter/2)
+	hole(g, XY(0, 0), workDiameter/2)
 
 	// Fillet radius is approx. Will not reach root exactly, but close enough.
 	// Otherwise need to calculate intersection with root-circle.

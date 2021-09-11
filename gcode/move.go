@@ -8,7 +8,7 @@ func (g *GCode) GotoX(ps ...Tuple) *GCode {
 	for _, p := range ps {
 		pos = Point(p.X(), pos.Y(), pos.Z())
 		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G0 X%.6f", p.X()),
+			s:   fmt.Sprintf("G0 X%.8f", p.X()),
 			pos: pos,
 		})
 	}
@@ -21,7 +21,7 @@ func (g *GCode) GotoY(ps ...Tuple) *GCode {
 	for _, p := range ps {
 		pos = Point(pos.X(), p.Y(), pos.Z())
 		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G0 Y%.6f", p.Y()),
+			s:   fmt.Sprintf("G0 Y%.8f", p.Y()),
 			pos: pos,
 		})
 	}
@@ -34,7 +34,7 @@ func (g *GCode) GotoZ(ps ...Tuple) *GCode {
 	for _, p := range ps {
 		pos = Point(pos.X(), pos.Y(), p.Z())
 		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G0 Z%.6f", p.Z()),
+			s:   fmt.Sprintf("G0 Z%.8f", p.Z()),
 			pos: pos,
 		})
 	}
@@ -47,7 +47,7 @@ func (g *GCode) GotoXY(ps ...Tuple) *GCode {
 	for _, p := range ps {
 		pos = Point(p.X(), p.Y(), pos.Z())
 		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G0 X%.6f Y%.6f", p.X(), p.Y()),
+			s:   fmt.Sprintf("G0 X%.8f Y%.8f", p.X(), p.Y()),
 			pos: pos,
 		})
 	}
@@ -60,7 +60,7 @@ func (g *GCode) GotoYZ(ps ...Tuple) *GCode {
 	for _, p := range ps {
 		pos = Point(pos.X(), p.Y(), p.Z())
 		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G0 Y%.6f Z%.6f", p.Y(), p.Z()),
+			s:   fmt.Sprintf("G0 Y%.8f Z%.8f", p.Y(), p.Z()),
 			pos: pos,
 		})
 	}
@@ -73,7 +73,7 @@ func (g *GCode) GotoXZ(ps ...Tuple) *GCode {
 	for _, p := range ps {
 		pos = Point(p.X(), pos.Y(), p.Z())
 		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G0 X%.6f Z%.6f", p.X(), p.Z()),
+			s:   fmt.Sprintf("G0 X%.8f Z%.8f", p.X(), p.Z()),
 			pos: pos,
 		})
 	}
@@ -84,7 +84,7 @@ func (g *GCode) GotoXZ(ps ...Tuple) *GCode {
 func (g *GCode) GotoXYZ(ps ...Tuple) *GCode {
 	for _, p := range ps {
 		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G0 X%.6f Y%.6f Z%.6f", p.X(), p.Y(), p.Z()),
+			s:   fmt.Sprintf("G0 X%.8f Y%.8f Z%.8f", p.X(), p.Y(), p.Z()),
 			pos: p,
 		})
 	}
@@ -97,7 +97,7 @@ func (g *GCode) MoveX(ps ...Tuple) *GCode {
 	for _, p := range ps {
 		pos = Point(p.X(), pos.Y(), pos.Z())
 		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G1 X%.6f", p.X()),
+			s:   fmt.Sprintf("G1 X%.8f", p.X()),
 			pos: pos,
 		})
 	}
@@ -110,7 +110,7 @@ func (g *GCode) MoveY(ps ...Tuple) *GCode {
 	for _, p := range ps {
 		pos = Point(pos.X(), p.Y(), pos.Z())
 		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G1 Y%.6f", p.Y()),
+			s:   fmt.Sprintf("G1 Y%.8f", p.Y()),
 			pos: pos,
 		})
 	}
@@ -123,7 +123,7 @@ func (g *GCode) MoveZ(ps ...Tuple) *GCode {
 	for _, p := range ps {
 		pos = Point(pos.X(), pos.Y(), p.Z())
 		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G1 Z%.6f", p.Z()),
+			s:   fmt.Sprintf("G1 Z%.8f", p.Z()),
 			pos: pos,
 		})
 	}
@@ -136,7 +136,7 @@ func (g *GCode) MoveXY(ps ...Tuple) *GCode {
 	for _, p := range ps {
 		pos = Point(p.X(), p.Y(), pos.Z())
 		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G1 X%.6f Y%.6f", p.X(), p.Y()),
+			s:   fmt.Sprintf("G1 X%.8f Y%.8f", p.X(), p.Y()),
 			pos: pos,
 		})
 	}
@@ -149,7 +149,7 @@ func (g *GCode) MoveYZ(ps ...Tuple) *GCode {
 	for _, p := range ps {
 		pos = Point(pos.X(), p.Y(), p.Z())
 		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G1 Y%.6f Z%.6f", p.Y(), p.Z()),
+			s:   fmt.Sprintf("G1 Y%.8f Z%.8f", p.Y(), p.Z()),
 			pos: pos,
 		})
 	}
@@ -162,7 +162,7 @@ func (g *GCode) MoveXZ(ps ...Tuple) *GCode {
 	for _, p := range ps {
 		pos = Point(p.X(), pos.Y(), p.Z())
 		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G1 X%.6f Z%.6f", p.X(), p.Z()),
+			s:   fmt.Sprintf("G1 X%.8f Z%.8f", p.X(), p.Z()),
 			pos: pos,
 		})
 	}
@@ -173,7 +173,7 @@ func (g *GCode) MoveXZ(ps ...Tuple) *GCode {
 func (g *GCode) MoveXYZ(ps ...Tuple) *GCode {
 	for _, p := range ps {
 		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G1 X%.6f Y%.6f Z%.6f", p.X(), p.Y(), p.Z()),
+			s:   fmt.Sprintf("G1 X%.8f Y%.8f Z%.8f", p.X(), p.Y(), p.Z()),
 			pos: p,
 		})
 	}
