@@ -11,11 +11,11 @@ import (
 )
 
 const (
-	HD = 6     // Gear center-hole diameter (mm)
-	N  = 9     // Number of teeth
-	PA = 20    // Pressure angle (deg)
-	D  = 100   // Pitch diameter (mm)
-	P  = N / D // Diametral pitch (teeth/mm)
+	HD = 6                       // Gear center-hole diameter (mm)
+	N  = 9                       // Number of teeth
+	PA = 20                      // Pressure angle (deg)
+	D  = 100                     // Pitch diameter (mm)
+	P  = float64(N) / float64(D) // Diametral pitch (teeth/mm)
 )
 
 func main() {
@@ -92,7 +92,7 @@ func involuteAngle(radius, outrad float64) float64 {
 // Make a gear with:
 // - nteeth		Number of teeth
 // - pressureAngleDeg	Teeth contact pressure angle
-// - diametralPitch	Diametral pitch (teets/length)
+// - diametralPitch	Diametral pitch (teeth/length)
 //
 // Return a vectorlist with outer points of the gear centered at [0,0]
 func gearP(nteeth int, pressureAngleDeg float64, diametralPitch float64) []Tuple {
@@ -116,13 +116,13 @@ func gearP(nteeth int, pressureAngleDeg float64, diametralPitch float64) []Tuple
 
 	var tooth []Tuple // The curve for one tooth
 
-	// message("nteeth=", nteeth, " pressureAngleDeg=", pressureAngleDeg, " diametralPitch=", diametralPitch)
-	// message("addendum=", addendum, " dedendum=", dedendum, " ht=", ht)
-	// message("pitchDiameter=", pitchDiameter)
-	// message("baseDiameter=", baseDiameter)
-	// message("outsideDiameter=", outsideDiameter)
-	// message("rootDiameter=", rootDiameter)
-	// message("workDiameter=", workDiameter)
+	log.Printf("nteeth=%v, pressureAngleDeg=%v, diametralPitch=%v", nteeth, pressureAngleDeg, diametralPitch)
+	log.Printf("addendum=%v, dedendum=%v, ht=%v", addendum, dedendum, ht)
+	log.Printf("pitchDiameter=%v", pitchDiameter)
+	log.Printf("baseDiameter=%v", baseDiameter)
+	log.Printf("outsideDiameter=%v", outsideDiameter)
+	log.Printf("rootDiameter=%v", rootDiameter)
+	log.Printf("workDiameter=%v", workDiameter)
 
 	// Show the different diameters:
 	// hole([0, 0], pitchDiameter/2)
