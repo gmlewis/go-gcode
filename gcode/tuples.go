@@ -81,10 +81,10 @@ func (t Tuple) Add(other Tuple) Tuple {
 	}
 }
 
-// Offset adds an offset to multiple tuples.
-func (t Tuple) Offset(path ...Tuple) []Tuple {
+// Offset adds an offset to multiple points.
+func (t Tuple) Offset(points ...Tuple) []Tuple {
 	var result []Tuple
-	for _, p := range path {
+	for _, p := range points {
 		result = append(result, t.Add(p))
 	}
 	return result
