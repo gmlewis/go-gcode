@@ -173,6 +173,15 @@ func Reverse(vs []Tuple) []Tuple {
 	return v
 }
 
+// LastXY returns the last XY point from a slice and sets Z=0.
+func LastXY(vs []Tuple) Tuple {
+	if len(vs) == 0 {
+		return XY(0, 0)
+	}
+	p := vs[len(vs)-1]
+	return XY(p.X(), p.Y())
+}
+
 // X returns a Vector with only X set.
 func X(x float64) Tuple { return Vector(x, 0, 0) }
 
