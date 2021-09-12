@@ -3,6 +3,7 @@ package gcode
 
 import (
 	"fmt"
+	"math"
 	"strings"
 	"time"
 )
@@ -46,7 +47,7 @@ type Step struct {
 // Position returns the current tool position.
 func (g *GCode) Position() Tuple {
 	if g == nil || len(g.steps) == 0 {
-		return Point(0, 0, 0)
+		return Point(math.Inf(1), math.Inf(1), math.Inf(1))
 	}
 	return g.steps[len(g.steps)-1].pos
 }

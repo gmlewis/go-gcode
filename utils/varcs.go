@@ -14,15 +14,6 @@ const (
 	defaultMaxA = 1 // degrees
 )
 
-// Plane represents a major axis.
-type Plane int
-
-const (
-	PlaneXY Plane = iota
-	PlaneYZ
-	PlaneXZ
-)
-
 // VOptions are options that alter the behavior of the arc and circle methods.
 type VOptions struct {
 	// Turns represents the number of turns.
@@ -32,7 +23,7 @@ type VOptions struct {
 	// MaxA is the maximum angle (in degrees).
 	MaxA *float64
 	// ActPlane is the acting plane.
-	ActPlane Plane
+	ActPlane gcode.PlaneT
 }
 
 // GetMaxL gets the value of the MaxL option.
@@ -113,11 +104,11 @@ func VCircleCCW(centerPoint gcode.Tuple, opts *VOptions) []gcode.Tuple {
 	return vl
 }
 
-func planePtConvert(pt gcode.Tuple, actPlane Plane) gcode.Tuple {
+func planePtConvert(pt gcode.Tuple, actPlane gcode.PlaneT) gcode.Tuple {
 	switch actPlane {
-	case PlaneXZ:
+	case gcode.PlaneXZ:
 		return gcode.Point(pt.X(), pt.Z(), pt.Y())
-	case PlaneYZ:
+	case gcode.PlaneYZ:
 		return gcode.Point(pt.Y(), pt.Z(), pt.X())
 	default:
 		return pt
@@ -245,12 +236,12 @@ func genAll(ccw, isCircle bool, epIn gcode.Tuple, radius float64, turns int, max
 	return arcv, nil
 }
 
-func toActivePlane(vl []gcode.Tuple, actPlane Plane) {
-	if actPlane == PlaneXY {
+func toActivePlane(vl []gcode.Tuple, actPlane gcode.PlaneT) {
+	if actPlane == "" || actPlane == gcode.PlaneXY {
 		return
 	}
 
-	if actPlane == PlaneXZ {
+	if actPlane == gcode.PlaneXZ {
 		for i, v := range vl {
 			vl[i] = gcode.Point(v.X(), v.Z(), v.Y())
 		}
