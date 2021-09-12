@@ -129,20 +129,20 @@ func gearP(g *GCode, nteeth int, pressureAngleDeg float64, diametralPitch float6
 	rootDiameter := baseDiameter - 2*dedendum
 	workDiameter := outsideDiameter - 4*addendum
 
-	log.Printf("nteeth=%v, pressureAngleDeg=%.8f, diametralPitch=%.8f", nteeth, pressureAngleDeg, diametralPitch)
-	log.Printf("addendum=%.8f, dedendum=%.8f, ht=%.8f", addendum, dedendum, ht)
-	log.Printf("pitchDiameter=%.8f", pitchDiameter)
-	log.Printf("baseDiameter=%.8f", baseDiameter)
-	log.Printf("outsideDiameter=%.8f", outsideDiameter)
-	log.Printf("rootDiameter=%.8f", rootDiameter)
-	log.Printf("workDiameter=%.8f", workDiameter)
+	// log.Printf("nteeth=%v, pressureAngleDeg=%.8f, diametralPitch=%.8f", nteeth, pressureAngleDeg, diametralPitch)
+	// log.Printf("addendum=%.8f, dedendum=%.8f, ht=%.8f", addendum, dedendum, ht)
+	// log.Printf("pitchDiameter=%.8f", pitchDiameter)
+	// log.Printf("baseDiameter=%.8f", baseDiameter)
+	// log.Printf("outsideDiameter=%.8f", outsideDiameter)
+	// log.Printf("rootDiameter=%.8f", rootDiameter)
+	// log.Printf("workDiameter=%.8f", workDiameter)
 
 	// Show the different diameters:
-	hole(g, XY(0, 0), pitchDiameter/2)
-	hole(g, XY(0, 0), baseDiameter/2)
-	hole(g, XY(0, 0), outsideDiameter/2)
-	hole(g, XY(0, 0), rootDiameter/2)
-	hole(g, XY(0, 0), workDiameter/2)
+	// hole(g, XY(0, 0), pitchDiameter/2)
+	// hole(g, XY(0, 0), baseDiameter/2)
+	// hole(g, XY(0, 0), outsideDiameter/2)
+	// hole(g, XY(0, 0), rootDiameter/2)
+	// hole(g, XY(0, 0), workDiameter/2)
 
 	tooth := rotatedHalfTooth(baseDiameter, outsideDiameter, rootDiameter, workDiameter, nteeth)
 
