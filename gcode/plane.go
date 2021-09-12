@@ -20,6 +20,7 @@ func (g *GCode) Plane(p PlaneT) *GCode {
 	case PlaneYZ:
 		s = "G19"
 	}
+	g.activePlane = p
 
 	g.steps = append(g.steps, &Step{
 		s:   s,

@@ -13,12 +13,13 @@ type GCode struct {
 	Prologue bool
 	Epilogue bool
 
-	steps []*Step
+	activePlane PlaneT
+	steps       []*Step
 }
 
 // New returns a new gcode design.
 func New() *GCode {
-	return &GCode{}
+	return &GCode{activePlane: PlaneXY}
 }
 
 // String converts the design to a string.

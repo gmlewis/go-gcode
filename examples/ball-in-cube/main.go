@@ -50,7 +50,7 @@ func gcmc() *GCode {
 		xy := math.Sin(radians) * cRad * 0.5    // Corner point
 		zz := -(1.0 - math.Cos(radians)) * cRad // Depth at corner
 		rr := math.Cos(radians) * cRad          // Adjusted radius
-		g.Feedrate(750)
+		g.Feedrate(75)
 		g.MoveXY(XY(xy, xy))
 		g.MoveZ(Z(zz))
 		g.Feedrate(100)
@@ -97,7 +97,7 @@ func gcmc() *GCode {
 		g.MoveXY(XY(xy, xy))
 	}
 	g.MoveZ(Z(safeZ))
-	g.MoveXY(XY(0, 0))
+	g.GotoXY(XY(0, 0))
 
 	return g
 }
