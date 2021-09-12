@@ -33,9 +33,9 @@ func gcmc() *GCode {
 
 	g.Feedrate(400)
 
-	genText(g, 10)
+	genText(g, 20)
 
-	genInsetText(g, 8)
+	genInsetText(g, 16)
 
 	return g
 }
