@@ -85,7 +85,7 @@ func (t Tuple) Add(other Tuple) Tuple {
 func (t Tuple) Offset(points ...Tuple) []Tuple {
 	var result []Tuple
 	for _, p := range points {
-		result = append(result, t.Add(p))
+		result = append(result, t.Add(Vector(p.X(), p.Y(), p.Z())))
 	}
 	return result
 }
@@ -164,20 +164,20 @@ func (t Tuple) Reflect(normal Tuple) Tuple {
 	return t.Sub(normal.MultScalar(2.0 * t.Dot(normal)))
 }
 
-// X returns a Point with only X set.
-func X(x float64) Tuple { return Point(x, 0, 0) }
+// X returns a Vector with only X set.
+func X(x float64) Tuple { return Vector(x, 0, 0) }
 
-// Y returns a Point with only Y set.
-func Y(y float64) Tuple { return Point(0, y, 0) }
+// Y returns a Vector with only Y set.
+func Y(y float64) Tuple { return Vector(0, y, 0) }
 
-// Z returns a Point with only Z set.
-func Z(z float64) Tuple { return Point(0, 0, z) }
+// Z returns a Vector with only Z set.
+func Z(z float64) Tuple { return Vector(0, 0, z) }
 
-// XY returns a Point with only X and Y set.
-func XY(x, y float64) Tuple { return Point(x, y, 0) }
+// XY returns a Vector with only X and Y set.
+func XY(x, y float64) Tuple { return Vector(x, y, 0) }
 
-// YZ returns a Point with only Y and Z set.
-func YZ(y, z float64) Tuple { return Point(0, y, z) }
+// YZ returns a Vector with only Y and Z set.
+func YZ(y, z float64) Tuple { return Vector(0, y, z) }
 
-// XZ returns a Point with only X and Z set.
-func XZ(x, z float64) Tuple { return Point(x, 0, z) }
+// XZ returns a Vector with only X and Z set.
+func XZ(x, z float64) Tuple { return Vector(x, 0, z) }

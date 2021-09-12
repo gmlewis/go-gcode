@@ -3,6 +3,8 @@ package main
 import (
 	"strings"
 	"testing"
+
+	"github.com/gmlewis/go-gcode/gcode"
 )
 
 func TestGCMC(t *testing.T) {
@@ -19,7 +21,32 @@ func TestGCMC(t *testing.T) {
 			continue
 		}
 		if i < len(want) && line != want[i] {
-			t.Fatalf("line #%v:\n%v\nwant:\n%v", i+1, line, want[i])
+			t.Fatalf("gcmc line #%v:\n%v\nwant:\n%v", i+1, line, want[i])
+		}
+	}
+}
+
+func TestHalfTooth(t *testing.T) {
+	const (
+		baseDiameter    = 93.96926208
+		outsideDiameter = 122.22222222
+		rootDiameter    = 68.25815097
+		workDiameter    = 77.77777778
+	)
+
+	ht := halfTooth(baseDiameter, outsideDiameter, rootDiameter, workDiameter)
+	g := gcode.New()
+	trace(g, ht, gcode.X(D/2))
+	got := strings.Split(g.String(), "\n")
+	want := strings.Split(halfToothOut, "\n")
+
+	if len(got) != len(want) {
+		t.Errorf("halfTooth = %v lines, want %v", len(got), len(want))
+	}
+
+	for i, line := range got {
+		if i < len(want) && line != want[i] {
+			t.Fatalf("halfTooth line #%v:\n%v\nwant:\n%v", i+1, line, want[i])
 		}
 	}
 }
@@ -1848,4 +1875,56 @@ G1 X10.18361185 Y-2.90060651
 G1 X11.07016798 Y-2.23662350
 (-- epilogue begin --)
 M30 (-- epilogue end --)
+`
+
+var halfToothOut = `G0 X110.53076049 Y8.40207921
+G1 X84.06805556 Y-2.78330942
+G1 X84.08028537 Y-2.50320055
+G1 X84.11688175 Y-2.22522347
+G1 X84.17756617 Y-1.95149377
+G1 X84.26187677 Y-1.68409468
+G1 X84.36917192 Y-1.42506129
+G1 X84.49863502 Y-1.17636498
+G1 X84.64928079 Y-0.93989849
+G1 X84.81996272 Y-0.71746147
+G1 X85.00938182 Y-0.51074680
+G1 X85.21609649 Y-0.32132770
+G1 X85.43853351 Y-0.15064577
+G1 X85.67500000 Y0.00000000
+G1 X85.92369631 Y0.12946310
+G1 X86.18272971 Y0.23675825
+G1 X86.45012879 Y0.32106886
+G1 X86.72385850 Y0.38175327
+G1 X87.00183557 Y0.41834965
+G1 X87.28194445 Y0.43057947
+G1 X87.56205332 Y0.41834965
+G1 X87.84003039 Y0.38175327
+G1 X88.11376010 Y0.32106886
+G1 X88.38115918 Y0.23675825
+G1 X88.64019258 Y0.12946310
+G1 X96.98463104 Y0.00000000
+G1 X97.01324700 Y0.00066605
+G1 X97.09899026 Y0.00532641
+G1 X97.24154725 Y0.01796570
+G1 X97.44039603 Y0.04254903
+G1 X97.69480738 Y0.08301244
+G1 X98.00384625 Y0.14325315
+G1 X98.36637371 Y0.22712012
+G1 X98.78104924 Y0.33840449
+G1 X99.24633343 Y0.48083028
+G1 X99.76049117 Y0.65804511
+G1 X100.32159515 Y0.87361112
+G1 X100.92752980 Y1.13099603
+G1 X101.57599562 Y1.43356435
+G1 X102.26451388 Y1.78456882
+G1 X102.99043171 Y2.18714204
+G1 X103.75092750 Y2.64428829
+G1 X104.54301675 Y3.15887562
+G1 X105.36355818 Y3.73362821
+G1 X106.20926023 Y4.37111893
+G1 X107.07668783 Y5.07376223
+G1 X107.96226956 Y5.84380733
+G1 X108.86230503 Y6.68333168
+G1 X109.77297259 Y7.59423474
+G1 X110.53076049 Y8.40207921
 `

@@ -9,27 +9,32 @@ import (
 
 // GCode represents a G-Code design.
 type GCode struct {
+	Prologue bool
+	Epilogue bool
+
 	steps []*Step
 }
 
 // New returns a new gcode design.
 func New() *GCode {
-	const timeFmt = "2006-01-02 15:04:05"
-	now := time.Now().Local()
-	return &GCode{
-		steps: []*Step{
-			{s: fmt.Sprintf(prologue, now.Format(timeFmt))},
-		},
-	}
+	return &GCode{}
 }
 
 // String converts the design to a string.
 func (g *GCode) String() string {
 	var lines []string
+	if g.Prologue {
+		const timeFmt = "2006-01-02 15:04:05"
+		now := time.Now().Local()
+		lines = append(lines, fmt.Sprintf(prologue, now.Format(timeFmt)))
+	}
 	for _, step := range g.steps {
 		lines = append(lines, step.s)
 	}
-	return strings.Join(lines, "\n")
+	if g.Epilogue {
+		lines = append(lines, epilogue)
+	}
+	return strings.Join(lines, "\n") + "\n"
 }
 
 // Step represents a step in the GCode.
@@ -59,3 +64,6 @@ G90 ( Use absolute distance mode )
 G94 ( Units Per Minute feed rate mode )
 G64 ( Enable path blending for best speed )
 (-- prologue end --)`
+
+var epilogue = `(-- epilogue begin --)
+M30 (-- epilogue end --)`

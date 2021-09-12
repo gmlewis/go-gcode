@@ -28,6 +28,8 @@ func main() {
 
 func gcmc() *GCode {
 	g := New()
+	g.Prologue = true
+	g.Epilogue = true
 
 	g.Feedrate(600)
 
@@ -72,7 +74,11 @@ func hole(g *GCode, point Tuple, radius float64) {
 const angleStepDeg = 2 // Trace interval for curves, in degrees.
 
 func toRad(a float64) float64 {
-	return a * math.Pi / 180
+	return a * math.Pi / 180.0
+}
+
+func toDeg(a float64) float64 {
+	return a * 180.0 / math.Pi
 }
 
 // Point on involute curve at specified angle in degrees, see https://en.wikipedia.org/wiki/Involute
@@ -91,11 +97,11 @@ func involutePoint(angle, radius float64) Tuple {
 	angle = toRad(angle) // Multiplication must be in radians.
 	cos := math.Cos(angle)
 	sin := math.Sin(angle)
-	return XY(cos+angle*sin, sin-angle*cos).MultScalar(radius)
+	return XY(radius*(cos+angle*sin), radius*(sin-angle*cos))
 }
 
 func involuteAngle(radius, outrad float64) float64 {
-	return toRad(math.Sqrt(math.Pow(outrad/radius, 2) - 1))
+	return toDeg(math.Sqrt(math.Pow(outrad/radius, 2.0) - 1.0))
 }
 
 // Make a gear with:
@@ -108,10 +114,10 @@ func gearP(g *GCode, nteeth int, pressureAngleDeg float64, diametralPitch float6
 	// The routine gets in serious trouble if you make the pressure angle
 	// too large or too small. Warn the user if such case occurs.
 	if pressureAngleDeg > 24.6 {
-		log.Printf("Pressure angle (%v) too large, cannot fit teeth inside the set outside diameter", pressureAngleDeg)
+		log.Printf("Pressure angle (%.8f) too large, cannot fit teeth inside the set outside diameter", pressureAngleDeg)
 	}
 	if pressureAngleDeg < 12.0 {
-		log.Printf("Pressure angle (%v) too small, teeth may get stuck at pitch radius", pressureAngleDeg)
+		log.Printf("Pressure angle (%.8f) too small, teeth may get stuck at pitch radius", pressureAngleDeg)
 	}
 
 	pitchDiameter := float64(nteeth) / diametralPitch
@@ -123,13 +129,13 @@ func gearP(g *GCode, nteeth int, pressureAngleDeg float64, diametralPitch float6
 	rootDiameter := baseDiameter - 2*dedendum
 	workDiameter := outsideDiameter - 4*addendum
 
-	log.Printf("nteeth=%v, pressureAngleDeg=%v, diametralPitch=%v", nteeth, pressureAngleDeg, diametralPitch)
-	log.Printf("addendum=%v, dedendum=%v, ht=%v", addendum, dedendum, ht)
-	log.Printf("pitchDiameter=%v", pitchDiameter)
-	log.Printf("baseDiameter=%v", baseDiameter)
-	log.Printf("outsideDiameter=%v", outsideDiameter)
-	log.Printf("rootDiameter=%v", rootDiameter)
-	log.Printf("workDiameter=%v", workDiameter)
+	log.Printf("nteeth=%v, pressureAngleDeg=%.8f, diametralPitch=%.8f", nteeth, pressureAngleDeg, diametralPitch)
+	log.Printf("addendum=%.8f, dedendum=%.8f, ht=%.8f", addendum, dedendum, ht)
+	log.Printf("pitchDiameter=%.8f", pitchDiameter)
+	log.Printf("baseDiameter=%.8f", baseDiameter)
+	log.Printf("outsideDiameter=%.8f", outsideDiameter)
+	log.Printf("rootDiameter=%.8f", rootDiameter)
+	log.Printf("workDiameter=%.8f", workDiameter)
 
 	// Show the different diameters:
 	hole(g, XY(0, 0), pitchDiameter/2)
@@ -182,18 +188,20 @@ func halfTooth(baseDiameter, outsideDiameter, rootDiameter, workDiameter float64
 
 	// Center of the fillet arc, involute makes a ~240deg angle with fillet arc.
 	// The fillet arc runs from the root to the working depth of the gear.
-	center := RotationZ(toRad(60)).MultTuple(X(-filletrad)).Add(X(workDiameter / 2))
+	center := RotationZ(toRad(60)).MultTuple(X(-filletrad)).Add(Vector(workDiameter/2, 0, 0))
 
 	// Trace the fillet arc from ~root-circle to working depth at involute arc starting Y-level
 	var a float64
 	for a = 180.0; a > 60.0; a -= angleStepDeg * 2.5 {
-		r := toRad(a)
-		tooth = append(tooth, XY(math.Cos(r), math.Sin(r)).MultScalar(filletrad).Add(center))
+		angle := toRad(a)
+		pt := XY(filletrad*math.Cos(angle)+center.X(), filletrad*math.Sin(angle)+center.Y())
+		tooth = append(tooth, pt)
 	}
 	if a != 60.0 {
 		// Add the last point if we did not reach the working depth
-		r := toRad(60)
-		tooth = append(tooth, XY(math.Cos(r), math.Sin(r)).MultScalar(filletrad).Add(center))
+		angle := toRad(60)
+		pt := XY(filletrad*math.Cos(angle)+center.X(), filletrad*math.Sin(angle)+center.Y())
+		tooth = append(tooth, pt)
 	}
 
 	// Calculate the maximum involute angle to intersect at the outside radius
