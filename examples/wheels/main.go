@@ -19,7 +19,7 @@ const (
 
 func main() {
 	g := gcmc()
-	fmt.Printf("%v\n", g)
+	fmt.Printf("%v", g)
 }
 
 func gcmc() *GCode {

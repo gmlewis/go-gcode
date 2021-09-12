@@ -20,7 +20,7 @@ const (
 
 func main() {
 	g := gcmc()
-	fmt.Printf("%v\n", g)
+	fmt.Printf("%v", g)
 }
 
 func gcmc() *GCode {
@@ -36,6 +36,10 @@ func gcmc() *GCode {
 
 	wavyArcs(g)
 
+	simpleEllipse(g)
+
+	angledEllipse(g)
+
 	return g
 }
 
@@ -45,6 +49,13 @@ func simpleArcs(g *GCode) {
 	flushItAt(g, XY(-20, 60), utils.VArcCW(XY(10, 15), -radius, nil))
 	flushItAt(g, XY(20, 100), utils.VArcCCW(XY(10, 15), radius, nil))
 	flushItAt(g, XY(20, 60), utils.VArcCCW(XY(10, 15), -radius, nil))
+}
+
+func flushItAt(g *GCode, v Tuple, vl []Tuple) {
+	oldPos := g.Position()
+	g.GotoXY(v)
+	g.MoveXY(v.Offset(vl...)...)
+	g.GotoXYZ(oldPos)
 }
 
 func spiral(g *GCode) {
@@ -90,9 +101,38 @@ func wavyArcs(g *GCode) {
 	g.GotoZ(Z(0))
 }
 
-func flushItAt(g *GCode, v Tuple, vl []Tuple) {
-	oldPos := g.Position()
-	g.GotoXY(v)
-	g.MoveXY(v.Offset(vl...)...)
-	g.GotoXYZ(oldPos)
+func simpleEllipse(g *GCode) {
+	majorRadius := 25.0
+	minorRadius := 15.0
+	ell := utils.VCircleCW(XY(majorRadius, 0), nil)
+	ell = Scaling(1, minorRadius/majorRadius, 0).Translate(60, 50, 0).Transform(ell...)
+
+	g.GotoXY(ell[len(ell)-1])
+	g.MoveXY(ell...)
+	g.GotoXY(XY(0, 0))
+	g.GotoX(Z(0))
+}
+
+func angledEllipse(g *GCode) {
+	majorRadius := 25.0
+	minorRadius := 15.0
+	angle := 30.0 * math.Pi / 180.0
+
+	// Center point angle must be transformed with the major/minor axes ratio so
+	// that the entry/exit point of the ellipse is on the bounding box' left side:
+	// - take a unit vector
+	// - rotate to desired ellipse angle
+	// - scale according to radii ratio
+	// - find the resulting angle
+	x, y := math.Cos(angle), math.Sin(angle)*minorRadius/majorRadius
+	cpa := math.Atan2(y, x)
+	center := XY(majorRadius*math.Cos(-cpa), majorRadius*math.Sin(-cpa))
+
+	ell := utils.VCircleCW(center, nil)
+	ell = Scaling(1, minorRadius/majorRadius, 0).RotateZ(angle).Translate(60, 0, 0).Transform(ell...)
+
+	g.GotoXY(ell[len(ell)-1])
+	g.MoveXY(ell...)
+	g.GotoXY(XY(0, 0))
+	g.GotoX(Z(0))
 }
