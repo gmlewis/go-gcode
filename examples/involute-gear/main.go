@@ -154,16 +154,13 @@ func gearP(g *GCode, nteeth int, pressureAngleDeg float64, diametralPitch float6
 	// Also add a point in the middle of the outside linear segment connecting
 	// both sides of the tooth. This will help the caller to attach a
 	// tool-compensated path at that point.
-	mirror := []Tuple{X(-tooth[len(tooth)-1].X())}
-	for i := len(tooth) - 1; i >= 0; i-- {
-		mirror = append(mirror, XY(tooth[i].X(), -tooth[i].Y()))
-	}
+	mirror := mirrorTooth(tooth)
 	tooth = append(tooth, mirror...)
 
 	// Create all teeth of the gear by adding each tooth at correct angle.
 	var gear []Tuple
 	for i := 0; i < nteeth; i++ {
-		a := toRad(float64(i) * 360 / float64(nteeth))
+		a := toRad(float64(i) * 360.0 / float64(nteeth))
 		gear = append(gear, RotationZ(a).Transform(tooth...)...)
 	}
 
@@ -171,9 +168,17 @@ func gearP(g *GCode, nteeth int, pressureAngleDeg float64, diametralPitch float6
 	// point-count plus one for the intermediate point to have the middle
 	// of the outside segment as entry-point into the path.
 	// return tail(gear, ntooth+1) + head(gear, -ntooth-1)
-	result := append([]Tuple{}, gear[ntooth+1:]...)
-	result = append(result, gear[0:ntooth+1]...)
+	result := append([]Tuple{}, gear[ntooth:]...)
+	result = append(result, gear[0:ntooth]...)
 	return result
+}
+
+func mirrorTooth(tooth []Tuple) []Tuple {
+	mirror := []Tuple{X(tooth[len(tooth)-1].X())}
+	for i := len(tooth) - 1; i >= 0; i-- {
+		mirror = append(mirror, XY(tooth[i].X(), -tooth[i].Y()))
+	}
+	return mirror
 }
 
 func rotatedHalfTooth(baseDiameter, outsideDiameter, rootDiameter, workDiameter float64, nteeth int) []Tuple {
@@ -218,7 +223,6 @@ func halfTooth(baseDiameter, outsideDiameter, rootDiameter, workDiameter float64
 		tooth = append(tooth, involutePoint(a, baseDiameter/2))
 	}
 	if a != maxA {
-		log.Printf("a=%.8f, maxA=%.8f", a, maxA)
 		// Add the last point if we did not reach the outside radius
 		tooth = append(tooth, involutePoint(maxA, baseDiameter/2))
 	}
