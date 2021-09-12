@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"log"
 	"math"
 
 	"github.com/gmlewis/go-gcode/gcode"
@@ -51,37 +52,37 @@ func (v *VOptions) GetMaxA() float64 {
 }
 
 // VArcCW generates a clockwise arc.
-func VArcCW(endPoint gcode.Tuple, radius float64, opts *VOptions) ([]gcode.Tuple, error) {
+func VArcCW(endPoint gcode.Tuple, radius float64, opts *VOptions) []gcode.Tuple {
 	if opts == nil {
 		opts = &VOptions{}
 	}
 	endPoint = planePtConvert(endPoint, opts.ActPlane)
 	vl, err := genAll(false, false, endPoint, radius, opts.Turns, opts.GetMaxL(), opts.GetMaxA())
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 
 	toActivePlane(vl, opts.ActPlane)
-	return vl, nil
+	return vl
 }
 
 // VArcCCW generates a counter-clockwise arc.
-func VArcCCW(endPoint gcode.Tuple, radius float64, opts *VOptions) ([]gcode.Tuple, error) {
+func VArcCCW(endPoint gcode.Tuple, radius float64, opts *VOptions) []gcode.Tuple {
 	if opts == nil {
 		opts = &VOptions{}
 	}
 	endPoint = planePtConvert(endPoint, opts.ActPlane)
 	vl, err := genAll(true, false, endPoint, radius, opts.Turns, opts.GetMaxL(), opts.GetMaxA())
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 
 	toActivePlane(vl, opts.ActPlane)
-	return vl, nil
+	return vl
 }
 
 // VCircleCW generates a clockwise circle.
-func VCircleCW(centerPoint gcode.Tuple, opts *VOptions) ([]gcode.Tuple, error) {
+func VCircleCW(centerPoint gcode.Tuple, opts *VOptions) []gcode.Tuple {
 	if opts == nil {
 		opts = &VOptions{}
 	}
@@ -89,15 +90,15 @@ func VCircleCW(centerPoint gcode.Tuple, opts *VOptions) ([]gcode.Tuple, error) {
 	radius := -math.Sqrt(centerPoint.X()*centerPoint.X() + centerPoint.Y()*centerPoint.Y())
 	vl, err := genAll(false, true, centerPoint, radius, opts.Turns, opts.GetMaxL(), opts.GetMaxA())
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 
 	toActivePlane(vl, opts.ActPlane)
-	return vl, nil
+	return vl
 }
 
 // VCircleCCW generates a counter-clockwise circle.
-func VCircleCCW(centerPoint gcode.Tuple, opts *VOptions) ([]gcode.Tuple, error) {
+func VCircleCCW(centerPoint gcode.Tuple, opts *VOptions) []gcode.Tuple {
 	if opts == nil {
 		opts = &VOptions{}
 	}
@@ -105,11 +106,11 @@ func VCircleCCW(centerPoint gcode.Tuple, opts *VOptions) ([]gcode.Tuple, error) 
 	radius := math.Sqrt(centerPoint.X()*centerPoint.X() + centerPoint.Y()*centerPoint.Y())
 	vl, err := genAll(true, true, centerPoint, radius, opts.Turns, opts.GetMaxL(), opts.GetMaxA())
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 
 	toActivePlane(vl, opts.ActPlane)
-	return vl, nil
+	return vl
 }
 
 func planePtConvert(pt gcode.Tuple, actPlane Plane) gcode.Tuple {
@@ -225,12 +226,14 @@ func genAll(ccw, isCircle bool, epIn gcode.Tuple, radius float64, turns int, max
 
 	var arcv []gcode.Tuple
 	sp[2] = epIn.Z()
-	ang := toRad(aStart)
-	offs := gcode.Point(radius*math.Cos(ang), radius*math.Cos(ang), 0)
+	ang := aStart
+	offs := gcode.Point(radius*math.Cos(ang), radius*math.Sin(ang), 0)
 	for i := 0; i < nStep; i++ {
-		ang = toRad(float64(i)*aStep + aStart)
-		z := float64(i) * epIn.Z() / float64(nStep)
-		arcv = append(arcv, gcode.Point(radius*math.Cos(ang)-offs.X(), radius*math.Cos(ang)-offs.Y(), z-offs.Z()))
+		ang = float64(i)*aStep + aStart
+		x := radius*math.Cos(ang) - offs.X()
+		y := radius*math.Sin(ang) - offs.Y()
+		z := float64(i)*epIn.Z()/float64(nStep) - offs.Z()
+		arcv = append(arcv, gcode.Point(x, y, z))
 	}
 
 	if isCircle {
@@ -240,10 +243,6 @@ func genAll(ccw, isCircle bool, epIn gcode.Tuple, radius float64, turns int, max
 	}
 
 	return arcv, nil
-}
-
-func toRad(a float64) float64 {
-	return a * math.Pi / 180.0
 }
 
 func toActivePlane(vl []gcode.Tuple, actPlane Plane) {

@@ -9,6 +9,7 @@ import (
 	"fmt"
 
 	. "github.com/gmlewis/go-gcode/gcode"
+	"github.com/gmlewis/go-gcode/utils"
 )
 
 const (
@@ -27,6 +28,18 @@ func gcmc() *GCode {
 	g.Epilogue = true
 
 	g.Feedrate(600)
+	radius := 15.0
+	flushItAt(g, XY(-20, 100), utils.VArcCW(XY(10, 15), radius, nil))
+	flushItAt(g, XY(-20, 60), utils.VArcCW(XY(10, 15), -radius, nil))
+	flushItAt(g, XY(20, 100), utils.VArcCCW(XY(10, 15), radius, nil))
+	flushItAt(g, XY(20, 60), utils.VArcCCW(XY(10, 15), -radius, nil))
 
 	return g
+}
+
+func flushItAt(g *GCode, v Tuple, vl []Tuple) {
+	oldPos := g.Position()
+	g.GotoXY(v)
+	g.MoveXY(v.Offset(vl...)...)
+	g.GotoXYZ(oldPos)
 }
