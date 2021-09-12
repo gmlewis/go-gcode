@@ -61,6 +61,7 @@ func VArcCW(endPoint gcode.Tuple, radius float64, opts *VOptions) ([]gcode.Tuple
 		return nil, err
 	}
 
+	toActivePlane(vl, opts.ActPlane)
 	return vl, nil
 }
 
@@ -75,6 +76,7 @@ func VArcCCW(endPoint gcode.Tuple, radius float64, opts *VOptions) ([]gcode.Tupl
 		return nil, err
 	}
 
+	toActivePlane(vl, opts.ActPlane)
 	return vl, nil
 }
 
@@ -90,6 +92,7 @@ func VCircleCW(centerPoint gcode.Tuple, opts *VOptions) ([]gcode.Tuple, error) {
 		return nil, err
 	}
 
+	toActivePlane(vl, opts.ActPlane)
 	return vl, nil
 }
 
@@ -105,6 +108,7 @@ func VCircleCCW(centerPoint gcode.Tuple, opts *VOptions) ([]gcode.Tuple, error) 
 		return nil, err
 	}
 
+	toActivePlane(vl, opts.ActPlane)
 	return vl, nil
 }
 
@@ -129,7 +133,7 @@ func planePtConvert(pt gcode.Tuple, actPlane Plane) gcode.Tuple {
 // The value resulting in the maximum number of steps is used.
 // Circles are denoted with the epIn argument pointing to the center point of
 // the circle. The rotation is always full in the desired direction.
-func genAll(ccw, circ bool, epIn gcode.Tuple, radius float64, turns int, maxL, maxA float64) ([]gcode.Tuple, error) {
+func genAll(ccw, isCircle bool, epIn gcode.Tuple, radius float64, turns int, maxL, maxA float64) ([]gcode.Tuple, error) {
 	if radius == 0 {
 		return nil, errors.New("radius must not be zero")
 	}
@@ -146,7 +150,7 @@ func genAll(ccw, circ bool, epIn gcode.Tuple, radius float64, turns int, maxL, m
 	}
 
 	var sp, ep, cp gcode.Tuple
-	if !circ {
+	if !isCircle {
 		// Arcs need to find the center point.
 		ep = gcode.XY(epIn.X(), epIn.Y())
 		// The normal of the sp <-> ep vector pointing to the center.
@@ -171,7 +175,90 @@ func genAll(ccw, circ bool, epIn gcode.Tuple, radius float64, turns int, maxL, m
 
 	aStart := math.Atan2(-cp.Y(), -cp.X())
 	var aEnd float64
+	switch {
+	case !isCircle:
+		aEnd = math.Atan2(ep.Y()-cp.Y(), ep.X()-cp.X())
+	case ccw:
+		aEnd = aStart + 2*math.Pi
+	default:
+		aEnd = aStart - 2*math.Pi
+	}
+
+	for aStart < 0 || aEnd < 0 {
+		aStart += 2 * math.Pi
+		aEnd += 2 * math.Pi
+	}
+
+	if ccw && aEnd < aStart {
+		aEnd += 2 * math.Pi
+	} else if !ccw && aStart < aEnd {
+		aStart += 2 * math.Pi
+	}
+
+	// Should this be done above?
+	if ccw {
+		aEnd += float64(turns) * 2 * math.Pi
+	} else {
+		aEnd -= float64(turns) * 2 * math.Pi
+	}
+
+	aTot := aEnd - aStart
+	var aStep float64
+	var nStep int
+
+	sa := int(math.Ceil(math.Abs(aTot) / (2.0 * math.Asin(0.5*maxL/cp.Magnitude()))))
+	sl := int(math.Ceil(math.Abs(aTot) / maxA))
+	if sa <= 1 {
+		sa = 2
+	}
+	if sl <= 1 {
+		sl = 2
+	}
+
+	if sa > sl {
+		aStep = aTot / float64(sa)
+		nStep = sa
+	} else {
+		aStep = aTot / float64(sl)
+		nStep = sl
+	}
 
 	var arcv []gcode.Tuple
+	sp[2] = epIn.Z()
+	ang := toRad(aStart)
+	offs := gcode.Point(radius*math.Cos(ang), radius*math.Cos(ang), 0)
+	for i := 0; i < nStep; i++ {
+		ang = toRad(float64(i)*aStep + aStart)
+		z := float64(i) * epIn.Z() / float64(nStep)
+		arcv = append(arcv, gcode.Point(radius*math.Cos(ang)-offs.X(), radius*math.Cos(ang)-offs.Y(), z-offs.Z()))
+	}
+
+	if isCircle {
+		arcv = append(arcv, sp)
+	} else {
+		arcv = append(arcv, epIn)
+	}
+
 	return arcv, nil
+}
+
+func toRad(a float64) float64 {
+	return a * math.Pi / 180.0
+}
+
+func toActivePlane(vl []gcode.Tuple, actPlane Plane) {
+	if actPlane == PlaneXY {
+		return
+	}
+
+	if actPlane == PlaneXZ {
+		for i, v := range vl {
+			vl[i] = gcode.Point(v.X(), v.Z(), v.Y())
+		}
+		return
+	}
+
+	for i, v := range vl {
+		vl[i] = gcode.Point(v.Z(), v.X(), v.Y())
+	}
 }
