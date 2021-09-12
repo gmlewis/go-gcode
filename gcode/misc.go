@@ -11,3 +11,8 @@ func (g *GCode) Feedrate(rate float64) *GCode {
 	})
 	return g
 }
+
+// Float returns a pointer to a float64 which is useful for options.
+func Float(v float64) *float64 {
+	return &v
+}

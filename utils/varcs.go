@@ -208,7 +208,7 @@ func genAll(ccw, isCircle bool, epIn gcode.Tuple, radius float64, turns int, max
 	var nStep int
 
 	sa := int(math.Ceil(math.Abs(aTot) / (2.0 * math.Asin(0.5*maxL/cp.Magnitude()))))
-	sl := int(math.Ceil(math.Abs(aTot) / maxA))
+	sl := int(math.Ceil(math.Abs(aTot) / (maxA * math.Pi / 180.0)))
 	if sa <= 1 {
 		sa = 2
 	}

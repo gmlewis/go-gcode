@@ -164,6 +164,15 @@ func (t Tuple) Reflect(normal Tuple) Tuple {
 	return t.Sub(normal.MultScalar(2.0 * t.Dot(normal)))
 }
 
+// Reverse makes a reversed copy of the slice of Tuples.
+func Reverse(vs []Tuple) []Tuple {
+	v := make([]Tuple, 0, len(vs))
+	for i := len(vs) - 1; i >= 0; i-- {
+		v = append(v, vs[i])
+	}
+	return v
+}
+
 // X returns a Vector with only X set.
 func X(x float64) Tuple { return Vector(x, 0, 0) }
 
