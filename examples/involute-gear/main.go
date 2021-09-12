@@ -144,10 +144,7 @@ func gearP(g *GCode, nteeth int, pressureAngleDeg float64, diametralPitch float6
 	hole(g, XY(0, 0), rootDiameter/2)
 	hole(g, XY(0, 0), workDiameter/2)
 
-	tooth := halfTooth(baseDiameter, outsideDiameter, rootDiameter, workDiameter)
-
-	// We now have one side of the tooth. Rotate to be at tooth-symmetry on X-axis
-	tooth = RotationZ(toRad(-90 / float64(nteeth))).Transform(tooth...)
+	tooth := rotatedHalfTooth(baseDiameter, outsideDiameter, rootDiameter, workDiameter, nteeth)
 
 	// Remember how many points we have in a side.
 	ntooth := len(tooth)
@@ -177,6 +174,15 @@ func gearP(g *GCode, nteeth int, pressureAngleDeg float64, diametralPitch float6
 	result := append([]Tuple{}, gear[ntooth+1:]...)
 	result = append(result, gear[0:ntooth+1]...)
 	return result
+}
+
+func rotatedHalfTooth(baseDiameter, outsideDiameter, rootDiameter, workDiameter float64, nteeth int) []Tuple {
+	tooth := halfTooth(baseDiameter, outsideDiameter, rootDiameter, workDiameter)
+
+	// We now have one side of the tooth. Rotate to be at tooth-symmetry on X-axis
+	tooth = RotationZ(toRad(-90.0 / float64(nteeth))).Transform(tooth...)
+
+	return tooth
 }
 
 func halfTooth(baseDiameter, outsideDiameter, rootDiameter, workDiameter float64) []Tuple {
@@ -212,6 +218,7 @@ func halfTooth(baseDiameter, outsideDiameter, rootDiameter, workDiameter float64
 		tooth = append(tooth, involutePoint(a, baseDiameter/2))
 	}
 	if a != maxA {
+		log.Printf("a=%.8f, maxA=%.8f", a, maxA)
 		// Add the last point if we did not reach the outside radius
 		tooth = append(tooth, involutePoint(maxA, baseDiameter/2))
 	}
