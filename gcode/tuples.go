@@ -1,7 +1,10 @@
 package gcode
 
 import (
+	"log"
 	"math"
+	"strconv"
+	"strings"
 )
 
 const (
@@ -199,3 +202,42 @@ func YZ(y, z float64) Tuple { return Vector(0, y, z) }
 
 // XZ returns a Vector with only X and Z set.
 func XZ(x, z float64) Tuple { return Vector(x, 0, z) }
+
+// XYZ returns a Vector.
+func XYZ(x, y, z float64) Tuple { return Vector(x, y, z) }
+
+// Path returns a list of tuples, keeping track of the changes
+// made at each step.
+//
+// They may include full XYZ coordinates for each point, however, specifying
+// only the coordinates that differ from the previous is enough, except for the
+// first one, which should include a Z-coordinate (missing coordinates will
+// start at zero). A "-" or empty string means to keep the previous value.
+func Path(ss ...string) []Tuple {
+	var result []Tuple
+	var lastPos Tuple
+	for _, s := range ss {
+		lastPos = parseDiffs(s, lastPos)
+		result = append(result, lastPos)
+	}
+	return result
+}
+
+func parseDiffs(s string, lastPos Tuple) Tuple {
+	parts := strings.Split(s, ",")
+	for i, part := range parts {
+		p := strings.TrimSpace(part)
+		if p == "" || p == "-" {
+			continue
+		}
+		v, err := strconv.ParseFloat(p, 64)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if i > 2 {
+			log.Fatalf("too many fields in path: %q", s)
+		}
+		lastPos[i] = v
+	}
+	return lastPos
+}

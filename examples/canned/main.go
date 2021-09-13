@@ -32,17 +32,18 @@ func gcmc() *GCode {
 	// Some holes...
 	// They may include full XYZ coordinates for each point, however, specifying
 	// only the coordinates that differ from the previous is enough, except for the
-	// first one, which must include a Z-coordinate.
-	lst := []Tuple{
-		Point(10, 0, -1),
-		X(15),
-		X(20),
-		X(25),
-		Z(5),
-		X(20),
-		XZ(15, -2),
-		X(10),
-	}
+	// first one, which should include a Z-coordinate (missing coordinates will
+	// start at zero). A "-" or empty string means to keep the previous value.
+	lst := Path(
+		"10, 0, -1",
+		"15",
+		"20",
+		"25",
+		"-, 5",
+		"20",
+		"15, -, -2",
+		"10",
+	)
 
 	g.Feedrate(400)
 
