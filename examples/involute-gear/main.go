@@ -53,7 +53,7 @@ func trace(g *GCode, path []Tuple, offset Tuple) {
 // Make a hole at center point with given radius.
 func hole(g *GCode, point Tuple, radius float64) {
 	g.GotoXY(point.Sub(X(radius)))
-	g.CircleCWRel(X(radius))
+	g.CircleCWRel(X(radius), nil)
 }
 
 // Gear terms:

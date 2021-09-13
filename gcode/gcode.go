@@ -3,7 +3,6 @@ package gcode
 
 import (
 	"fmt"
-	"math"
 	"strings"
 	"time"
 )
@@ -14,6 +13,7 @@ type GCode struct {
 	Epilogue bool
 
 	activePlane PlaneT
+	hasMoved    bool
 	steps       []*Step
 }
 
@@ -45,10 +45,10 @@ type Step struct {
 	pos Tuple // position after performing the step.
 }
 
-// Position returns the current tool position.
+// Position returns the current tool position (defaulting to home 0,0,0).
 func (g *GCode) Position() Tuple {
 	if g == nil || len(g.steps) == 0 {
-		return Point(math.Inf(1), math.Inf(1), math.Inf(1))
+		return Point(0, 0, 0)
 	}
 	return g.steps[len(g.steps)-1].pos
 }

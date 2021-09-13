@@ -6,8 +6,8 @@ import (
 	"math"
 )
 
-// ArcOptions represents options for the arc and circle methods.
-type ArcOptions struct {
+// TurnsOption represents options for the arc and circle methods.
+type TurnsOption struct {
 	Turns int
 }
 
@@ -20,7 +20,7 @@ const (
 	fnArcCCWRel
 )
 
-func (g *GCode) allArcs(endP Tuple, origRad float64, relative bool, ft arcFnEnumT, opCode string, opts *ArcOptions) *Step {
+func (g *GCode) allArcs(endP Tuple, origRad float64, relative bool, ft arcFnEnumT, opCode string, opts *TurnsOption) *Step {
 	radius := origRad
 	if ft == fnArcCCW || ft == fnArcCCWRel {
 		radius *= -1.0
@@ -124,7 +124,10 @@ func (g *GCode) allArcs(endP Tuple, origRad float64, relative bool, ft arcFnEnum
 
 	pos := g.Position()
 	xyz := pos.Add(vecab)
-	s := fmt.Sprintf("%v X%.8f Y%.8f Z%.8f", opCode, xyz.X(), xyz.Y(), xyz.Z())
+	s := g.genChangedXYZ(opCode, xyz, forceXY)
+	if s == "" {
+		s = fmt.Sprintf("%v X%.8f Y%.8f", opCode, xyz.X(), xyz.Y())
+	}
 	if relative {
 		pos = pos.Add(vecep)
 	} else {
@@ -152,8 +155,19 @@ func (g *GCode) allArcs(endP Tuple, origRad float64, relative bool, ft arcFnEnum
 // The arc will be the shortest angular movement with positive radius and
 // the largest angular movement with negative radius.
 // Optional turns sets the number of turns to perform.
-func (g *GCode) ArcCCW(endPoint Tuple, radius float64, opts *ArcOptions) *GCode {
+func (g *GCode) ArcCCW(endPoint Tuple, radius float64, opts *TurnsOption) *GCode {
 	step := g.allArcs(endPoint, radius, false, fnArcCCW, "G3", opts)
+	g.steps = append(g.steps, step)
+	return g
+}
+
+// ArcCCWRel performs a counter clockwise arc from the current position
+// to endpoint with given radius using relative offsets.
+// The arc will be the shortest angular movement with positive radius and
+// the largest angular movement with negative radius.
+// Optional turns sets the number of turns to perform.
+func (g *GCode) ArcCCWRel(endPoint Tuple, radius float64, opts *TurnsOption) *GCode {
+	step := g.allArcs(endPoint, radius, true, fnArcCCWRel, "G3", opts)
 	g.steps = append(g.steps, step)
 	return g
 }
@@ -163,21 +177,130 @@ func (g *GCode) ArcCCW(endPoint Tuple, radius float64, opts *ArcOptions) *GCode 
 // The arc will be the shortest angular movement with positive radius and
 // the largest angular movement with negative radius.
 // Optional turns sets the number of turns to perform.
-func (g *GCode) ArcCW(endPoint Tuple, radius float64, opts *ArcOptions) *GCode {
+func (g *GCode) ArcCW(endPoint Tuple, radius float64, opts *TurnsOption) *GCode {
 	step := g.allArcs(endPoint, radius, false, fnArcCW, "G2", opts)
 	g.steps = append(g.steps, step)
 	return g
 }
 
-// CircleCWRel performs a clockwise (cw) circle with radius length(centerPoint)
+// ArcCWRel performs a clockwise arc from the current position
+// to endpoint with given radius using relative offsets.
+// The arc will be the shortest angular movement with positive radius and
+// the largest angular movement with negative radius.
+// Optional turns sets the number of turns to perform.
+func (g *GCode) ArcCWRel(endPoint Tuple, radius float64, opts *TurnsOption) *GCode {
+	step := g.allArcs(endPoint, radius, true, fnArcCWRel, "G2", opts)
+	g.steps = append(g.steps, step)
+	return g
+}
+
+// CircleCWRel performs a clockwise circle with radius length(centerPoint)
+// and where centerPoint is the center point of the circle.
+// The non-active plane coordinate may be used to create a helical movement.
+// Optional turns sets the number of turns to perform.
+func (g *GCode) CircleCW(centerPoint Tuple, opts *TurnsOption) *GCode {
+	step := g.allCircles(centerPoint, false, fnCircleCW, "G2", opts)
+	g.steps = append(g.steps, step)
+	return g
+}
+
+// CircleCWRel performs a clockwise circle with radius length(centerPoint)
 // and where centerPoint is the center point of the circle.
 // The specified centerPoint is a relative position.
 // The non-active plane coordinate may be used to create a helical movement.
-func (g *GCode) CircleCWRel(centerPoint Tuple) *GCode {
-	pos := g.Position()
-	g.steps = append(g.steps, &Step{
-		s:   fmt.Sprintf("G2 X%.8f Y%.8f I%.8f J%.8f", pos.X(), pos.Y(), centerPoint.X(), centerPoint.Y()),
-		pos: pos,
-	})
+// Optional turns sets the number of turns to perform.
+func (g *GCode) CircleCWRel(centerPoint Tuple, opts *TurnsOption) *GCode {
+	step := g.allCircles(centerPoint, true, fnCircleCWRel, "G2", opts)
+	g.steps = append(g.steps, step)
 	return g
+}
+
+// CircleCCWRel performs a clockwise circle with radius length(centerPoint)
+// and where centerPoint is the center point of the circle.
+// The non-active plane coordinate may be used to create a helical movement.
+// Optional turns sets the number of turns to perform.
+func (g *GCode) CircleCCW(centerPoint Tuple, opts *TurnsOption) *GCode {
+	step := g.allCircles(centerPoint, false, fnCircleCCW, "G2", opts)
+	g.steps = append(g.steps, step)
+	return g
+}
+
+// CircleCCWRel performs a clockwise circle with radius length(centerPoint)
+// and where centerPoint is the center point of the circle.
+// The specified centerPoint is a relative position.
+// The non-active plane coordinate may be used to create a helical movement.
+// Optional turns sets the number of turns to perform.
+func (g *GCode) CircleCCWRel(centerPoint Tuple, opts *TurnsOption) *GCode {
+	step := g.allCircles(centerPoint, true, fnCircleCCWRel, "G2", opts)
+	g.steps = append(g.steps, step)
+	return g
+}
+
+type circleFnEnumT int
+
+const (
+	fnCircleCW circleFnEnumT = iota
+	fnCircleCWRel
+	fnCircleCCW
+	fnCircleCCWRel
+)
+
+func (g *GCode) allCircles(arg0 Tuple, relative bool, ft circleFnEnumT, opCode string, opts *TurnsOption) *Step {
+	endP := g.Position()
+	var coor1, coor2 float64
+
+	switch g.activePlane {
+	default: // XY
+		if relative {
+			coor1 = arg0.X()
+			coor2 = arg0.Y()
+		} else {
+			coor1 = arg0.X() - endP.X()
+			coor2 = arg0.Y() - endP.Y()
+		}
+		endP[2] = arg0.Z()
+	case PlaneXZ:
+		if relative {
+			coor1 = arg0.X()
+			coor2 = arg0.Z()
+		} else {
+			coor1 = arg0.X() - endP.X()
+			coor2 = arg0.Z() - endP.Z()
+		}
+		endP[1] = arg0.Y()
+	case PlaneYZ:
+		if relative {
+			coor1 = arg0.Y()
+			coor2 = arg0.Z()
+		} else {
+			coor1 = arg0.Y() - endP.Y()
+			coor2 = arg0.Z() - endP.Z()
+		}
+		endP[0] = arg0.X()
+	}
+
+	if math.Sqrt(coor1*coor1+coor2*coor2) < epsilon {
+		log.Fatal("radius is zero")
+	}
+
+	s := g.genChangedXYZ(opCode, endP, forceXY)
+	if s == "" {
+		s = fmt.Sprintf("%v X%.8f Y%.8f", opCode, endP.X(), endP.Y())
+	}
+	pos := endP
+
+	switch g.activePlane {
+	default: // XY
+		s += fmt.Sprintf(" I%.8f J%.8f", coor1, coor2)
+	case PlaneXZ:
+		s += fmt.Sprintf(" I%.8f K%.8f", coor1, coor2)
+	case PlaneYZ:
+		s += fmt.Sprintf(" J%.8f K%.8f", coor1, coor2)
+	}
+
+	if opts != nil && opts.Turns > 0 {
+		s += fmt.Sprintf(" P%v", opts.Turns)
+	}
+
+	return &Step{s: s, pos: pos}
 }
