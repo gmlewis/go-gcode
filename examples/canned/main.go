@@ -28,8 +28,6 @@ func gcmc() *GCode {
 
 	retract := 5.0 // R-plane level
 	incr := 2.2    // Peck increment
-	// oldZ := 1.0    // Return to initial Z in canned cycle (set to 0 for start at R-plane)
-	// dwl := 0.2     // dwell time
 
 	// Some holes...
 	// They may include full XYZ coordinates for each point, however, specifying

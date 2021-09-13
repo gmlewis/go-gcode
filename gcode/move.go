@@ -1,20 +1,38 @@
 package gcode
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+	"strings"
+)
+
+// moveOrGo optimizes the movement to only include the
+// axes that have changed since the last moveOrGo.
+func (g *GCode) moveOrGo(opCode string, p Tuple) {
+	pos := g.Position()
+	var parts []string
+	if math.Abs(p.X()-pos.X()) >= epsilon {
+		parts = append(parts, fmt.Sprintf("X%.8f", p.X()))
+	}
+	if math.Abs(p.Y()-pos.Y()) >= epsilon {
+		parts = append(parts, fmt.Sprintf("Y%.8f", p.Y()))
+	}
+	if math.Abs(p.Z()-pos.Z()) >= epsilon {
+		parts = append(parts, fmt.Sprintf("Z%.8f", p.Z()))
+	}
+	if len(parts) == 0 {
+		return
+	}
+	s := fmt.Sprintf("%v %v", opCode, strings.Join(parts, " "))
+	g.steps = append(g.steps, &Step{s: s, pos: p})
+}
 
 // GotoX performs one or more rapid move(s) on the X axis.
 func (g *GCode) GotoX(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
 		newPos := Point(p.X(), pos.Y(), pos.Z())
-		if newPos.Equal(pos) {
-			continue
-		}
-		pos = newPos
-		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G0 X%.8f", p.X()),
-			pos: pos,
-		})
+		g.moveOrGo("G0", newPos)
 	}
 	return g
 }
@@ -24,14 +42,7 @@ func (g *GCode) GotoY(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
 		newPos := Point(pos.X(), p.Y(), pos.Z())
-		if newPos.Equal(pos) {
-			continue
-		}
-		pos = newPos
-		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G0 Y%.8f", p.Y()),
-			pos: pos,
-		})
+		g.moveOrGo("G0", newPos)
 	}
 	return g
 }
@@ -41,14 +52,7 @@ func (g *GCode) GotoZ(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
 		newPos := Point(pos.X(), pos.Y(), p.Z())
-		if newPos.Equal(pos) {
-			continue
-		}
-		pos = newPos
-		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G0 Z%.8f", p.Z()),
-			pos: pos,
-		})
+		g.moveOrGo("G0", newPos)
 	}
 	return g
 }
@@ -58,14 +62,7 @@ func (g *GCode) GotoXY(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
 		newPos := Point(p.X(), p.Y(), pos.Z())
-		if newPos.Equal(pos) {
-			continue
-		}
-		pos = newPos
-		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G0 X%.8f Y%.8f", p.X(), p.Y()),
-			pos: pos,
-		})
+		g.moveOrGo("G0", newPos)
 	}
 	return g
 }
@@ -75,14 +72,7 @@ func (g *GCode) GotoYZ(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
 		newPos := Point(pos.X(), p.Y(), p.Z())
-		if newPos.Equal(pos) {
-			continue
-		}
-		pos = newPos
-		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G0 Y%.8f Z%.8f", p.Y(), p.Z()),
-			pos: pos,
-		})
+		g.moveOrGo("G0", newPos)
 	}
 	return g
 }
@@ -92,30 +82,15 @@ func (g *GCode) GotoXZ(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
 		newPos := Point(p.X(), pos.Y(), p.Z())
-		if newPos.Equal(pos) {
-			continue
-		}
-		pos = newPos
-		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G0 X%.8f Z%.8f", p.X(), p.Z()),
-			pos: pos,
-		})
+		g.moveOrGo("G0", newPos)
 	}
 	return g
 }
 
 // GotoXYZ performs one or more rapid move(s) on the XYZ axis.
 func (g *GCode) GotoXYZ(ps ...Tuple) *GCode {
-	pos := g.Position()
 	for _, p := range ps {
-		if p.Equal(pos) {
-			continue
-		}
-		pos = p
-		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G0 X%.8f Y%.8f Z%.8f", p.X(), p.Y(), p.Z()),
-			pos: pos,
-		})
+		g.moveOrGo("G0", p)
 	}
 	return g
 }
@@ -125,14 +100,7 @@ func (g *GCode) MoveX(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
 		newPos := Point(p.X(), pos.Y(), pos.Z())
-		if newPos.Equal(pos) {
-			continue
-		}
-		pos = newPos
-		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G1 X%.8f", p.X()),
-			pos: pos,
-		})
+		g.moveOrGo("G1", newPos)
 	}
 	return g
 }
@@ -142,14 +110,7 @@ func (g *GCode) MoveY(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
 		newPos := Point(pos.X(), p.Y(), pos.Z())
-		if newPos.Equal(pos) {
-			continue
-		}
-		pos = newPos
-		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G1 Y%.8f", p.Y()),
-			pos: pos,
-		})
+		g.moveOrGo("G1", newPos)
 	}
 	return g
 }
@@ -159,14 +120,7 @@ func (g *GCode) MoveZ(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
 		newPos := Point(pos.X(), pos.Y(), p.Z())
-		if newPos.Equal(pos) {
-			continue
-		}
-		pos = newPos
-		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G1 Z%.8f", p.Z()),
-			pos: pos,
-		})
+		g.moveOrGo("G1", newPos)
 	}
 	return g
 }
@@ -176,14 +130,7 @@ func (g *GCode) MoveXY(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
 		newPos := Point(p.X(), p.Y(), pos.Z())
-		if newPos.Equal(pos) {
-			continue
-		}
-		pos = newPos
-		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G1 X%.8f Y%.8f", p.X(), p.Y()),
-			pos: pos,
-		})
+		g.moveOrGo("G1", newPos)
 	}
 	return g
 }
@@ -193,14 +140,7 @@ func (g *GCode) MoveYZ(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
 		newPos := Point(pos.X(), p.Y(), p.Z())
-		if newPos.Equal(pos) {
-			continue
-		}
-		pos = newPos
-		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G1 Y%.8f Z%.8f", p.Y(), p.Z()),
-			pos: pos,
-		})
+		g.moveOrGo("G1", newPos)
 	}
 	return g
 }
@@ -210,30 +150,15 @@ func (g *GCode) MoveXZ(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
 		newPos := Point(p.X(), pos.Y(), p.Z())
-		if newPos.Equal(pos) {
-			continue
-		}
-		pos = newPos
-		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G1 X%.8f Z%.8f", p.X(), p.Z()),
-			pos: pos,
-		})
+		g.moveOrGo("G1", newPos)
 	}
 	return g
 }
 
 // MoveXYZ performs one or more move(s) on the XYZ axes at the current feed-rate.
 func (g *GCode) MoveXYZ(ps ...Tuple) *GCode {
-	pos := g.Position()
 	for _, p := range ps {
-		if p.Equal(pos) {
-			continue
-		}
-		pos = p
-		g.steps = append(g.steps, &Step{
-			s:   fmt.Sprintf("G1 X%.8f Y%.8f Z%.8f", p.X(), p.Y(), p.Z()),
-			pos: pos,
-		})
+		g.moveOrGo("G1", p)
 	}
 	return g
 }

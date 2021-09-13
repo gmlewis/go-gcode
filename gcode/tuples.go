@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	epsilon = 1e-4
+	epsilon = 1e-8
 )
 
 // Tuple is a 4-float vector.
