@@ -31,6 +31,7 @@ func CannedDrill(g *gcode.GCode, retractZ, dw float64, oldZ bool, holes ...gcode
 	prevZ := g.Position().Z()
 
 	g.Comment("-- canned_drill R-plane=", retractZ, " dwelling=", dw, " return-to-old-Z=", oldZ, " --")
+	g.Pathmode(true)
 
 	if prevZ < retractZ {
 		prevZ = retractZ
@@ -95,6 +96,7 @@ func CannedDrillPeck(g *gcode.GCode, retractZ, delta float64, oldZ bool, holes .
 	prevZ := g.Position().Z()
 
 	g.Comment("-- canned_drill_peck R-plane=", retractZ, " peck-increment=", delta, " return-to-old-Z=", oldZ, " --")
+	g.Pathmode(true)
 
 	clearance := 0.1 * delta
 	if clearance > 2.0*cannedDrillPeckClearance {
