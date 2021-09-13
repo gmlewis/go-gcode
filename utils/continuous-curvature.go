@@ -43,7 +43,7 @@ func CCHole(g *gcode.GCode, center gcode.Tuple, targetRadius, toolRadius, cutSte
 
 	g.Comment("-- CCHole center=", center, " targetRadius=", targetRadius, " toolRadius=", toolRadius, " cutStep=", cutStep, " cutZ=", cutZ, " --")
 
-	g.GotoXYZ(center)
+	g.GotoXYZ(gcode.XYZ(center.X(), center.Y(), oldZ))
 	g.MoveZ(gcode.Z(cutZ))
 
 	r := toolRadius
@@ -59,7 +59,7 @@ func CCHole(g *gcode.GCode, center gcode.Tuple, targetRadius, toolRadius, cutSte
 			r += targetRadius - r
 		}
 		g.ArcCWRel(gcode.XY(0, dir*p), 0.5*p, nil)
-		g.CircleCW(center, nil)
+		g.CircleCW(gcode.XYZ(center.X(), center.Y(), cutZ), nil)
 		n++
 		dir = -dir
 	}

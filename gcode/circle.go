@@ -118,16 +118,17 @@ func (g *GCode) allArcs(endP Tuple, origRad float64, relative bool, ft arcFnEnum
 		center[2] = 0.5*vecab.Z() + lambda*normal.Z()
 	}
 
-	if math.Abs(radius)-(0.5*length) < epsilon {
+	if math.Abs(radius)-(0.5*length) < -epsilon {
 		log.Fatalf("radius %v is less than two times start-to-endpoint distance %v", origRad, 0.5*length)
 	}
 
 	pos := g.Position()
 	xyz := pos.Add(vecab)
-	s := g.genChangedXYZ(opCode, xyz, forceXY)
-	if s == "" {
-		s = fmt.Sprintf("%v X%.8f Y%.8f", opCode, xyz.X(), xyz.Y())
+	s := fmt.Sprintf("%v X%.8f Y%.8f", opCode, xyz.X(), xyz.Y())
+	if math.Abs(xyz.Z()-pos.Z()) >= epsilon {
+		s += fmt.Sprintf(" Z%.8f", xyz.Z())
 	}
+
 	if relative {
 		pos = pos.Add(vecep)
 	} else {
@@ -283,9 +284,9 @@ func (g *GCode) allCircles(arg0 Tuple, relative bool, ft circleFnEnumT, opCode s
 		log.Fatal("radius is zero")
 	}
 
-	s := g.genChangedXYZ(opCode, endP, forceXY)
-	if s == "" {
-		s = fmt.Sprintf("%v X%.8f Y%.8f", opCode, endP.X(), endP.Y())
+	s := fmt.Sprintf("%v X%.8f Y%.8f", opCode, endP.X(), endP.Y())
+	if math.Abs(endP.Z()-g.Position().Z()) >= epsilon {
+		s += fmt.Sprintf(" Z%.8f", endP.Z())
 	}
 	pos := endP
 
