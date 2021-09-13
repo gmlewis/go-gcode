@@ -185,26 +185,26 @@ func LastXY(vs []Tuple) Tuple {
 	return XY(p.X(), p.Y())
 }
 
-// X returns a Vector with only X set.
-func X(x float64) Tuple { return Vector(x, 0, 0) }
+// X returns a Point with only X set.
+func X(x float64) Tuple { return Point(x, 0, 0) }
 
-// Y returns a Vector with only Y set.
-func Y(y float64) Tuple { return Vector(0, y, 0) }
+// Y returns a Point with only Y set.
+func Y(y float64) Tuple { return Point(0, y, 0) }
 
-// Z returns a Vector with only Z set.
-func Z(z float64) Tuple { return Vector(0, 0, z) }
+// Z returns a Point with only Z set.
+func Z(z float64) Tuple { return Point(0, 0, z) }
 
-// XY returns a Vector with only X and Y set.
-func XY(x, y float64) Tuple { return Vector(x, y, 0) }
+// XY returns a Point with only X and Y set.
+func XY(x, y float64) Tuple { return Point(x, y, 0) }
 
-// YZ returns a Vector with only Y and Z set.
-func YZ(y, z float64) Tuple { return Vector(0, y, z) }
+// YZ returns a Point with only Y and Z set.
+func YZ(y, z float64) Tuple { return Point(0, y, z) }
 
-// XZ returns a Vector with only X and Z set.
-func XZ(x, z float64) Tuple { return Vector(x, 0, z) }
+// XZ returns a Point with only X and Z set.
+func XZ(x, z float64) Tuple { return Point(x, 0, z) }
 
-// XYZ returns a Vector.
-func XYZ(x, y, z float64) Tuple { return Vector(x, y, z) }
+// XYZ returns a Point.
+func XYZ(x, y, z float64) Tuple { return Point(x, y, z) }
 
 // Path returns a list of tuples, keeping track of the changes
 // made at each step.
@@ -215,7 +215,7 @@ func XYZ(x, y, z float64) Tuple { return Vector(x, y, z) }
 // start at zero). A "-" or empty string means to keep the previous value.
 func Path(ss ...string) []Tuple {
 	var result []Tuple
-	var lastPos Tuple
+	lastPos := Point(0, 0, 0)
 	for _, s := range ss {
 		lastPos = parseDiffs(s, lastPos)
 		result = append(result, lastPos)

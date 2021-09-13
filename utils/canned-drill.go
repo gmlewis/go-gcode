@@ -112,28 +112,22 @@ func CannedDrillPeck(g *gcode.GCode, retractZ, delta float64, oldZ bool, holes .
 
 	for _, v := range holes {
 		zDrill := v.Z()
-		g.Comment("GML1")
 		g.GotoXY(v)
 		if zDrill >= retractZ {
 			// warning(pfx, "drilling at ", head(v, 2), " to depth ", zdrill, " is higher than retract-plane (", retractz, "), skipping")
 			continue
 		}
 
-		g.Comment("GML2")
 		g.GotoZ(gcode.Z(retractZ))
 
 		if retractZ-delta >= zDrill {
-			g.Comment("GML3")
 			g.MoveZ(gcode.Z(retractZ - delta))
 			g.GotoZ(gcode.Z(retractZ))
 		} else {
-			g.Comment("GML4")
 			g.MoveZ(gcode.Z(zDrill))
 			if oldZ {
-				g.Comment("GML5")
 				g.GotoZ(gcode.Z(prevZ))
 			} else {
-				g.Comment("GML6")
 				g.GotoZ(gcode.Z(retractZ))
 			}
 			continue
@@ -141,7 +135,6 @@ func CannedDrillPeck(g *gcode.GCode, retractZ, delta float64, oldZ bool, holes .
 
 		var zPos float64
 		for zPos = retractZ - 2.0*delta; zPos > zDrill; zPos -= delta {
-			g.Comment("GML7")
 			g.GotoZ(gcode.Z(zPos + delta + clearance))
 			g.MoveZ(gcode.Z(zPos))
 			g.GotoZ(gcode.Z(retractZ))
@@ -149,21 +142,18 @@ func CannedDrillPeck(g *gcode.GCode, retractZ, delta float64, oldZ bool, holes .
 
 		zPos += delta
 		if zPos > zDrill {
-			g.Comment("GML8")
 			g.GotoZ(gcode.Z(zPos + clearance))
 			g.MoveZ(gcode.Z(zDrill))
 			g.GotoZ(gcode.Z(retractZ))
 		}
 
 		if oldZ {
-			g.Comment("GML9")
 			g.GotoZ(gcode.Z(prevZ))
 		}
 	}
 
 	if oldZ {
 		if prevZ > retractZ {
-			g.Comment("GML10")
 			g.GotoZ(gcode.Z(prevZ))
 		} else if prevZ < retractZ {
 			// warning(pfx, "oldz return requested, but oldz (", prevz,") is below retract-plane (", retractz,"), staying at retract-plane");
