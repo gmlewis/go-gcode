@@ -16,3 +16,8 @@ func (g *GCode) Feedrate(rate float64) *GCode {
 func Float(v float64) *float64 {
 	return &v
 }
+
+// MilToMM converts mil (1/1000th of an inch) to millimeters.
+func MilToMM(v float64) float64 {
+	return 0.0254 * v
+}
