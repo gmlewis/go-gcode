@@ -43,7 +43,9 @@ func (m M4) MultTuple(other Tuple) Tuple {
 func (m M4) Transform(points ...Tuple) []Tuple {
 	var result []Tuple
 	for _, p := range points {
-		result = append(result, m.MultTuple(p))
+		newPt := m.MultTuple(p)
+		newPt[3] = 1
+		result = append(result, newPt)
 	}
 	return result
 }

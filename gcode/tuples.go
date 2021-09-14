@@ -88,7 +88,9 @@ func (t Tuple) Add(other Tuple) Tuple {
 func (t Tuple) Offset(points ...Tuple) []Tuple {
 	var result []Tuple
 	for _, p := range points {
-		result = append(result, t.Add(Vector(p.X(), p.Y(), p.Z())))
+		newPt := t.Add(p)
+		newPt[3] = 1
+		result = append(result, newPt)
 	}
 	return result
 }
