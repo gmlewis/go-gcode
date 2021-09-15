@@ -190,13 +190,14 @@ func TracePathComp(g *gcode.GCode, width float64, flags TPCOptions, path ...gcod
 
 	// Entry into first segment
 	if flags&TPCArcIn > 0 {
-		p := path[0].Add(normal[0].Sub(dir[0]).MultScalar(2.0 * width))
+		p := path[0].Add(normal[0].MultScalar(2).Sub(dir[0]).MultScalar(width))
+		// log.Printf("path[0]=%v, normal[0]=%v, dir[0]=%v, p=%v", path[0], normal[0], dir[0], p)
 		g.GotoXY(p)  // Rapid without Z
 		g.MoveXYZ(p) // Move with Z
 		// Arc into the first segment's start point
 		p = path[0].Add(normal[0].MultScalar(width))
 		if side > 0.0 {
-			log.Printf("GML1: g.ArcCW(p=%v, width=%v, nil)", p, width)
+			// log.Printf("GML1: g.ArcCW(p=%v, width=%v, nil)", p, width)
 			g.ArcCW(p, width, nil)
 		} else {
 			g.ArcCCW(p, width, nil)

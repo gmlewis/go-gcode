@@ -33,6 +33,7 @@ func (g *GCode) allArcs(endP Tuple, origRad float64, relative bool, ft arcFnEnum
 	}
 	var center Tuple
 	var length float64
+	// log.Printf("allArcs(endP=%v, radius=%v, relative=%v, ft=%v, opCode=%v): vecab=%v, pos=%v", endP, radius, relative, ft, opCode, vecab, g.Position())
 
 	switch g.activePlane {
 	default: // XY
@@ -52,11 +53,12 @@ func (g *GCode) allArcs(endP Tuple, origRad float64, relative bool, ft arcFnEnum
 		b := 0.5*vecab[0]*normal[0] + 0.5*vecab[1]*normal[1]
 		c := 0.25*vecab[0]*vecab[0] + 0.25*vecab[1]*vecab[1] - radius*radius
 		d := b*b - 4.0*a*c
+		// log.Printf("vecab=%v, length=%v, radius=%v, normal=%v, a=%v, b=%v, c=%v, d=%v", vecab, length, radius, normal, a, b, c, d)
 		if d < 0.0 && math.Abs(d) < epsilon {
 			d = 0.0
 		}
 		if d < 0.0 {
-			log.Fatalf("allArcs(endP=%v, opCode=%q), (pos=%v): radius %v is less than two times distance from start to end (D=%v)", endP, opCode, g.Position(), origRad, d)
+			log.Fatalf("allArcs(endP=%v, opCode=%q), (pos=%v)(A): radius %v is less than two times distance from start to end (D=%v)", endP, opCode, g.Position(), origRad, d)
 		}
 		// lambda := math.Sqrt(vecab.X()*vecab.X() + vecab.Z()*vecab.Z())
 		lambda := (-b + math.Sqrt(d)) / (2.0 * a)
@@ -85,7 +87,7 @@ func (g *GCode) allArcs(endP Tuple, origRad float64, relative bool, ft arcFnEnum
 			d = 0.0
 		}
 		if d < 0.0 {
-			log.Fatalf("allArcs(endP=%v, opCode=%q), (pos=%v): radius %v is less than two times distance from start to end (D=%v)", endP, opCode, g.Position(), origRad, d)
+			log.Fatalf("allArcs(endP=%v, opCode=%q), (pos=%v)(B): radius %v is less than two times distance from start to end (D=%v)", endP, opCode, g.Position(), origRad, d)
 		}
 		lambda := (-b + math.Sqrt(d)) / (2.0 * a)
 		center[0] = 0.5*vecab.X() + lambda*normal.X()
@@ -111,7 +113,7 @@ func (g *GCode) allArcs(endP Tuple, origRad float64, relative bool, ft arcFnEnum
 			d = 0.0
 		}
 		if d < 0.0 {
-			log.Fatalf("allArcs(endP=%v, opCode=%q), (pos=%v): radius %v is less than two times distance from start to end (D=%v)", endP, opCode, g.Position(), origRad, d)
+			log.Fatalf("allArcs(endP=%v, opCode=%q), (pos=%v)(C): radius %v is less than two times distance from start to end (D=%v)", endP, opCode, g.Position(), origRad, d)
 		}
 		lambda := (-b + math.Sqrt(d)) / (2.0 * a)
 		center[1] = 0.5*vecab.Y() + lambda*normal.Y()
@@ -119,7 +121,7 @@ func (g *GCode) allArcs(endP Tuple, origRad float64, relative bool, ft arcFnEnum
 	}
 
 	if math.Abs(radius)-(0.5*length) < -epsilon {
-		log.Fatalf("allArcs(endP=%v, opCode=%q), (pos=%v): radius %v is less than two times start-to-endpoint distance %v", endP, opCode, g.Position(), origRad, 0.5*length)
+		log.Fatalf("allArcs(endP=%v, opCode=%q), (pos=%v)(D): radius %v is less than two times start-to-endpoint distance %v", endP, opCode, g.Position(), origRad, 0.5*length)
 	}
 
 	pos := g.Position()
