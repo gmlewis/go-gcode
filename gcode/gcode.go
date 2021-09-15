@@ -48,7 +48,7 @@ type Step struct {
 // Position returns the current tool position (defaulting to home 0,0,0).
 func (g *GCode) Position() Tuple {
 	if g == nil || len(g.steps) == 0 {
-		return Point(0, 0, 0)
+		return XYZ(0, 0, 0)
 	}
 	return g.steps[len(g.steps)-1].pos
 }

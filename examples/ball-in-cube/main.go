@@ -55,13 +55,13 @@ func gcmc() *GCode {
 		g.MoveZ(Z(zz))
 		g.Feedrate(100)
 		g.Plane(PlaneXZ)
-		g.ArcCW(Point(-xy, xy, zz), rr, nil)
+		g.ArcCW(XYZ(-xy, xy, zz), rr, nil)
 		g.Plane(PlaneYZ)
-		g.ArcCCW(Point(-xy, -xy, zz), rr, nil)
+		g.ArcCCW(XYZ(-xy, -xy, zz), rr, nil)
 		g.Plane(PlaneXZ)
-		g.ArcCCW(Point(xy, -xy, zz), rr, nil)
+		g.ArcCCW(XYZ(xy, -xy, zz), rr, nil)
 		g.Plane(PlaneYZ)
-		g.ArcCW(Point(xy, xy, zz), rr, nil)
+		g.ArcCW(XYZ(xy, xy, zz), rr, nil)
 		ang += angInc
 		if ang >= 55.0 || xy >= 0.5*boxSize-cutterRad-boxBarSize {
 			break

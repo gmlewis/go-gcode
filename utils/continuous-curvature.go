@@ -3,7 +3,7 @@ package utils
 import (
 	"log"
 
-	"github.com/gmlewis/go-gcode/gcode"
+	. "github.com/gmlewis/go-gcode/gcode"
 )
 
 // Based on:
@@ -20,7 +20,7 @@ import (
 // milling-bit radius and the cutting step define how many turning cycles are
 // required to finish the hole. The mill is retracted with a helical move back
 // to the center and starting Z-position.
-func CCHole(g *gcode.GCode, center gcode.Tuple, targetRadius, toolRadius, cutStep, cutZ float64) {
+func CCHole(g *GCode, center Tuple, targetRadius, toolRadius, cutStep, cutZ float64) {
 	if targetRadius <= 0.0 {
 		log.Fatal("targetRadius must be positive")
 	}
@@ -43,8 +43,8 @@ func CCHole(g *gcode.GCode, center gcode.Tuple, targetRadius, toolRadius, cutSte
 
 	g.Comment("-- CCHole center=", center, " targetRadius=", targetRadius, " toolRadius=", toolRadius, " cutStep=", cutStep, " cutZ=", cutZ, " --")
 
-	g.GotoXYZ(gcode.XYZ(center.X(), center.Y(), oldZ))
-	g.MoveZ(gcode.Z(cutZ))
+	g.GotoXYZ(XYZ(center.X(), center.Y(), oldZ))
+	g.MoveZ(Z(cutZ))
 
 	r := toolRadius
 	n := 1
@@ -58,14 +58,14 @@ func CCHole(g *gcode.GCode, center gcode.Tuple, targetRadius, toolRadius, cutSte
 			p = float64(2*n-2)*cutStep + targetRadius - r
 			r += targetRadius - r
 		}
-		g.ArcCWRel(gcode.XY(0, dir*p), 0.5*p, nil)
-		g.CircleCW(gcode.XYZ(center.X(), center.Y(), cutZ), nil)
+		g.ArcCWRel(XY(0, dir*p), 0.5*p, nil)
+		g.CircleCW(XYZ(center.X(), center.Y(), cutZ), nil)
 		n++
 		dir = -dir
 	}
 
 	g.ArcCWRel(
-		gcode.XYZ(0, dir*(targetRadius-toolRadius), oldZ-cutZ),
+		XYZ(0, dir*(targetRadius-toolRadius), oldZ-cutZ),
 		0.5*(targetRadius-toolRadius), nil)
 
 	g.Comment("-- end CCHole --")

@@ -6,7 +6,7 @@ import (
 	"log"
 	"math"
 
-	"github.com/gmlewis/go-gcode/gcode"
+	. "github.com/gmlewis/go-gcode/gcode"
 )
 
 const (
@@ -23,7 +23,7 @@ type VOptions struct {
 	// MaxA is the maximum angle (in degrees).
 	MaxA *float64
 	// ActPlane is the acting plane.
-	ActPlane gcode.PlaneT
+	ActPlane PlaneT
 }
 
 // GetMaxL gets the value of the MaxL option.
@@ -43,7 +43,7 @@ func (v *VOptions) GetMaxA() float64 {
 }
 
 // VArcCW generates a clockwise arc.
-func VArcCW(endPoint gcode.Tuple, radius float64, opts *VOptions) []gcode.Tuple {
+func VArcCW(endPoint Tuple, radius float64, opts *VOptions) []Tuple {
 	if opts == nil {
 		opts = &VOptions{}
 	}
@@ -58,7 +58,7 @@ func VArcCW(endPoint gcode.Tuple, radius float64, opts *VOptions) []gcode.Tuple 
 }
 
 // VArcCCW generates a counter-clockwise arc.
-func VArcCCW(endPoint gcode.Tuple, radius float64, opts *VOptions) []gcode.Tuple {
+func VArcCCW(endPoint Tuple, radius float64, opts *VOptions) []Tuple {
 	if opts == nil {
 		opts = &VOptions{}
 	}
@@ -73,7 +73,7 @@ func VArcCCW(endPoint gcode.Tuple, radius float64, opts *VOptions) []gcode.Tuple
 }
 
 // VCircleCW generates a clockwise circle.
-func VCircleCW(centerPoint gcode.Tuple, opts *VOptions) []gcode.Tuple {
+func VCircleCW(centerPoint Tuple, opts *VOptions) []Tuple {
 	if opts == nil {
 		opts = &VOptions{}
 	}
@@ -89,7 +89,7 @@ func VCircleCW(centerPoint gcode.Tuple, opts *VOptions) []gcode.Tuple {
 }
 
 // VCircleCCW generates a counter-clockwise circle.
-func VCircleCCW(centerPoint gcode.Tuple, opts *VOptions) []gcode.Tuple {
+func VCircleCCW(centerPoint Tuple, opts *VOptions) []Tuple {
 	if opts == nil {
 		opts = &VOptions{}
 	}
@@ -104,12 +104,12 @@ func VCircleCCW(centerPoint gcode.Tuple, opts *VOptions) []gcode.Tuple {
 	return vl
 }
 
-func planePtConvert(pt gcode.Tuple, actPlane gcode.PlaneT) gcode.Tuple {
+func planePtConvert(pt Tuple, actPlane PlaneT) Tuple {
 	switch actPlane {
-	case gcode.PlaneXZ:
-		return gcode.Point(pt.X(), pt.Z(), pt.Y())
-	case gcode.PlaneYZ:
-		return gcode.Point(pt.Y(), pt.Z(), pt.X())
+	case PlaneXZ:
+		return XYZ(pt.X(), pt.Z(), pt.Y())
+	case PlaneYZ:
+		return XYZ(pt.Y(), pt.Z(), pt.X())
 	default:
 		return pt
 	}
@@ -125,7 +125,7 @@ func planePtConvert(pt gcode.Tuple, actPlane gcode.PlaneT) gcode.Tuple {
 // The value resulting in the maximum number of steps is used.
 // Circles are denoted with the epIn argument pointing to the center point of
 // the circle. The rotation is always full in the desired direction.
-func genAll(ccw, isCircle bool, epIn gcode.Tuple, radius float64, turns int, maxL, maxA float64) ([]gcode.Tuple, error) {
+func genAll(ccw, isCircle bool, epIn Tuple, radius float64, turns int, maxL, maxA float64) ([]Tuple, error) {
 	if radius == 0 {
 		return nil, errors.New("radius must not be zero")
 	}
@@ -141,12 +141,12 @@ func genAll(ccw, isCircle bool, epIn gcode.Tuple, radius float64, turns int, max
 		radius *= -1
 	}
 
-	var sp, ep, cp gcode.Tuple
+	var sp, ep, cp Tuple
 	if !isCircle {
 		// Arcs need to find the center point.
-		ep = gcode.XY(epIn.X(), epIn.Y())
+		ep = XY(epIn.X(), epIn.Y())
 		// The normal of the sp <-> ep vector pointing to the center.
-		normal := gcode.XY(ep.Y(), -ep.X()).Normalize()
+		normal := XY(ep.Y(), -ep.X()).Normalize()
 		if radius < 0 {
 			normal = normal.MultScalar(-1)
 			radius *= -1
@@ -162,7 +162,7 @@ func genAll(ccw, isCircle bool, epIn gcode.Tuple, radius float64, turns int, max
 		// Full circles have center point as argument and the endpoint
 		// is always the same as the start point.
 		ep = sp
-		cp = gcode.XY(-ep.X(), -ep.Y())
+		cp = XY(-ep.X(), -ep.Y())
 	}
 
 	aStart := math.Atan2(-cp.Y(), -cp.X())
@@ -215,16 +215,16 @@ func genAll(ccw, isCircle bool, epIn gcode.Tuple, radius float64, turns int, max
 		nStep = sl
 	}
 
-	var arcv []gcode.Tuple
+	var arcv []Tuple
 	sp[2] = epIn.Z()
 	ang := aStart
-	offs := gcode.Point(radius*math.Cos(ang), radius*math.Sin(ang), 0)
+	offs := XYZ(radius*math.Cos(ang), radius*math.Sin(ang), 0)
 	for i := 0; i < nStep; i++ {
 		ang = float64(i)*aStep + aStart
 		x := radius*math.Cos(ang) - offs.X()
 		y := radius*math.Sin(ang) - offs.Y()
 		z := float64(i)*epIn.Z()/float64(nStep) - offs.Z()
-		arcv = append(arcv, gcode.Point(x, y, z))
+		arcv = append(arcv, XYZ(x, y, z))
 	}
 
 	if isCircle {
@@ -236,19 +236,19 @@ func genAll(ccw, isCircle bool, epIn gcode.Tuple, radius float64, turns int, max
 	return arcv, nil
 }
 
-func toActivePlane(vl []gcode.Tuple, actPlane gcode.PlaneT) {
-	if actPlane == "" || actPlane == gcode.PlaneXY {
+func toActivePlane(vl []Tuple, actPlane PlaneT) {
+	if actPlane == "" || actPlane == PlaneXY {
 		return
 	}
 
-	if actPlane == gcode.PlaneXZ {
+	if actPlane == PlaneXZ {
 		for i, v := range vl {
-			vl[i] = gcode.Point(v.X(), v.Z(), v.Y())
+			vl[i] = XYZ(v.X(), v.Z(), v.Y())
 		}
 		return
 	}
 
 	for i, v := range vl {
-		vl[i] = gcode.Point(v.Z(), v.X(), v.Y())
+		vl[i] = XYZ(v.Z(), v.X(), v.Y())
 	}
 }

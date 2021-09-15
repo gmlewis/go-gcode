@@ -61,7 +61,7 @@ func genText(g *GCode, sf float64) {
 		r := v.Y() + circ
 		x := r * math.Cos(angle)
 		y := r * math.Sin(angle)
-		rotvl = append(rotvl, Point(x, y, v.Z()))
+		rotvl = append(rotvl, XYZ(x, y, v.Z()))
 	}
 
 	utils.Engrave(g, rotvl, 1, 0)
@@ -80,7 +80,7 @@ func genInsetText(g *GCode, sf float64) {
 		r := v.Y() + circ
 		x := r * math.Cos(angle)
 		y := r * math.Sin(angle)
-		rotvl = append(rotvl, Point(x, y, v.Z()))
+		rotvl = append(rotvl, XYZ(x, y, v.Z()))
 	}
 
 	// Engrave on a different engraving plane.

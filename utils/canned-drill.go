@@ -3,7 +3,7 @@ package utils
 import (
 	"log"
 
-	"github.com/gmlewis/go-gcode/gcode"
+	. "github.com/gmlewis/go-gcode/gcode"
 )
 
 const (
@@ -27,7 +27,7 @@ const (
 //      drilling depth. Each subsequent vector must include at least one X or Y
 //      coordinate or possibly both. Each vector may include a Z-coordinate to
 //      define a new drilling depth.
-func CannedDrill(g *gcode.GCode, retractZ, dw float64, oldZ bool, holes ...gcode.Tuple) {
+func CannedDrill(g *GCode, retractZ, dw float64, oldZ bool, holes ...Tuple) {
 	prevZ := g.Position().Z()
 
 	g.Comment("-- canned_drill R-plane=", retractZ, " dwelling=", dw, " return-to-old-Z=", oldZ, " --")
@@ -35,7 +35,7 @@ func CannedDrill(g *gcode.GCode, retractZ, dw float64, oldZ bool, holes ...gcode
 
 	if prevZ < retractZ {
 		prevZ = retractZ
-		g.GotoZ(gcode.Z(retractZ))
+		g.GotoZ(Z(retractZ))
 	}
 
 	for _, v := range holes {
@@ -46,23 +46,23 @@ func CannedDrill(g *gcode.GCode, retractZ, dw float64, oldZ bool, holes ...gcode
 			continue
 		}
 
-		g.GotoZ(gcode.Z(retractZ))
-		g.MoveZ(gcode.Z(zDrill))
+		g.GotoZ(Z(retractZ))
+		g.MoveZ(Z(zDrill))
 
 		if dw >= 0.0 {
 			g.Dwell(dw)
 		}
 
 		if oldZ {
-			g.GotoZ(gcode.Z(prevZ))
+			g.GotoZ(Z(prevZ))
 		} else {
-			g.GotoZ(gcode.Z(retractZ))
+			g.GotoZ(Z(retractZ))
 		}
 	}
 
 	if oldZ {
 		if prevZ > retractZ {
-			g.GotoZ(gcode.Z(prevZ))
+			g.GotoZ(Z(prevZ))
 		} else if prevZ < retractZ {
 			// warning(pfx, "oldz return requested, but oldZ (", prevZ,") is below retract-plane (", retractZ,"), staying at retract-plane");
 		}
@@ -88,7 +88,7 @@ func CannedDrill(g *gcode.GCode, retractZ, dw float64, oldZ bool, holes ...gcode
 //      drilling depth. Each subsequent vector must include at least one X or Y
 //      coordinate or possibly both. Each vector may include a Z-coordinate to
 //      define a new drilling depth.
-func CannedDrillPeck(g *gcode.GCode, retractZ, delta float64, oldZ bool, holes ...gcode.Tuple) {
+func CannedDrillPeck(g *GCode, retractZ, delta float64, oldZ bool, holes ...Tuple) {
 	if delta <= 0.0 {
 		log.Fatal("delta must be > 0")
 	}
@@ -107,7 +107,7 @@ func CannedDrillPeck(g *gcode.GCode, retractZ, delta float64, oldZ bool, holes .
 
 	if prevZ < retractZ {
 		prevZ = retractZ
-		g.GotoZ(gcode.Z(retractZ))
+		g.GotoZ(Z(retractZ))
 	}
 
 	for _, v := range holes {
@@ -118,43 +118,43 @@ func CannedDrillPeck(g *gcode.GCode, retractZ, delta float64, oldZ bool, holes .
 			continue
 		}
 
-		g.GotoZ(gcode.Z(retractZ))
+		g.GotoZ(Z(retractZ))
 
 		if retractZ-delta >= zDrill {
-			g.MoveZ(gcode.Z(retractZ - delta))
-			g.GotoZ(gcode.Z(retractZ))
+			g.MoveZ(Z(retractZ - delta))
+			g.GotoZ(Z(retractZ))
 		} else {
-			g.MoveZ(gcode.Z(zDrill))
+			g.MoveZ(Z(zDrill))
 			if oldZ {
-				g.GotoZ(gcode.Z(prevZ))
+				g.GotoZ(Z(prevZ))
 			} else {
-				g.GotoZ(gcode.Z(retractZ))
+				g.GotoZ(Z(retractZ))
 			}
 			continue
 		}
 
 		var zPos float64
 		for zPos = retractZ - 2.0*delta; zPos > zDrill; zPos -= delta {
-			g.GotoZ(gcode.Z(zPos + delta + clearance))
-			g.MoveZ(gcode.Z(zPos))
-			g.GotoZ(gcode.Z(retractZ))
+			g.GotoZ(Z(zPos + delta + clearance))
+			g.MoveZ(Z(zPos))
+			g.GotoZ(Z(retractZ))
 		}
 
 		zPos += delta
 		if zPos > zDrill {
-			g.GotoZ(gcode.Z(zPos + clearance))
-			g.MoveZ(gcode.Z(zDrill))
-			g.GotoZ(gcode.Z(retractZ))
+			g.GotoZ(Z(zPos + clearance))
+			g.MoveZ(Z(zDrill))
+			g.GotoZ(Z(retractZ))
 		}
 
 		if oldZ {
-			g.GotoZ(gcode.Z(prevZ))
+			g.GotoZ(Z(prevZ))
 		}
 	}
 
 	if oldZ {
 		if prevZ > retractZ {
-			g.GotoZ(gcode.Z(prevZ))
+			g.GotoZ(Z(prevZ))
 		} else if prevZ < retractZ {
 			// warning(pfx, "oldz return requested, but oldz (", prevz,") is below retract-plane (", retractz,"), staying at retract-plane");
 		}

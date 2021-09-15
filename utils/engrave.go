@@ -1,6 +1,8 @@
 package utils
 
-import "github.com/gmlewis/go-gcode/gcode"
+import (
+	. "github.com/gmlewis/go-gcode/gcode"
+)
 
 // Engrave takes care of pen-up/down handling for tracing text.
 //
@@ -15,13 +17,13 @@ import "github.com/gmlewis/go-gcode/gcode"
 // pen-up/down, where 0.0 means pen-down and larger than 0.0 means pen-up (1.0
 // is returned from the typeset() function). The pen movement is always in a
 // single vector, as in: [-, -, penpos].
-func Engrave(g *gcode.GCode, vs []gcode.Tuple, zUp, zDown float64) {
+func Engrave(g *GCode, vs []Tuple, zUp, zDown float64) {
 	for _, v := range vs {
 		up := v.Z() > 0.0
 		if up {
-			g.GotoXYZ(gcode.Point(v.X(), v.Y(), zUp))
+			g.GotoXYZ(XYZ(v.X(), v.Y(), zUp))
 		} else {
-			g.MoveXYZ(gcode.Point(v.X(), v.Y(), zDown))
+			g.MoveXYZ(XYZ(v.X(), v.Y(), zDown))
 		}
 	}
 }

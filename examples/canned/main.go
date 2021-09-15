@@ -23,8 +23,8 @@ func gcmc() *GCode {
 	g.Epilogue = true
 
 	msg := "MSG,"
-	homePos := Point(0, 0, 0)
-	initPos := Point(-1, -1, 10)
+	homePos := XYZ(0, 0, 0)
+	initPos := XYZ(-1, -1, 10)
 
 	retract := 5.0 // R-plane level
 	incr := 2.2    // Peck increment

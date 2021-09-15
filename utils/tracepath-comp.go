@@ -4,7 +4,7 @@ import (
 	"log"
 	"math"
 
-	"github.com/gmlewis/go-gcode/gcode"
+	. "github.com/gmlewis/go-gcode/gcode"
 )
 
 const (
@@ -41,7 +41,7 @@ const (
 //		is unique.
 //
 // Return value: none
-func TracePathComp(g *gcode.GCode, width float64, flags TPCOptions, path ...gcode.Tuple) {
+func TracePathComp(g *GCode, width float64, flags TPCOptions, path ...Tuple) {
 	if len(path) == 0 {
 		return
 	}
@@ -74,7 +74,7 @@ func TracePathComp(g *gcode.GCode, width float64, flags TPCOptions, path ...gcod
 		flags |= TPCClosed
 	}
 
-	var normal, dir []gcode.Tuple
+	var normal, dir []Tuple
 	path, normal, dir = calcDirs(side, path)
 
 	var warnRemove int
@@ -101,10 +101,10 @@ func TracePathComp(g *gcode.GCode, width float64, flags TPCOptions, path ...gcod
 			crossP = side * tpcCrossProd(normal[i], tmp) // sin(angle/2)
 			dotP = normal[i].Dot(tmp.Normalize())        // cos(angle/2)
 			tmp = path[i].Sub(path[i-1])
-			li := gcode.XY(tmp.X(), tmp.Y()).Magnitude() // Entry segment into sharp internal edge
+			li := XY(tmp.X(), tmp.Y()).Magnitude() // Entry segment into sharp internal edge
 			tmp = path[(i+1)%npath].Sub(path[i])
-			lo := gcode.XY(tmp.X(), tmp.Y()).Magnitude() // Exit segment into sharp internal edge
-			lm := width * crossP / dotP                  // Bisected calculated move distance
+			lo := XY(tmp.X(), tmp.Y()).Magnitude() // Exit segment into sharp internal edge
+			lm := width * crossP / dotP            // Bisected calculated move distance
 			if lm <= li && lm <= lo {
 				continue // we can fit
 			}
@@ -219,7 +219,7 @@ func TracePathComp(g *gcode.GCode, width float64, flags TPCOptions, path ...gcod
 	for i = 1; i < n; i++ {
 		j := i % npath
 		crossP := tpcCrossProd(dir[i-1], dir[j])
-		dotP := dir[j-1].Dot(dir[j])
+		dotP := dir[(j+npath-1)%npath].Dot(dir[j])
 		if math.Abs(crossP) < epsilon {
 			// Co-linear or 180 degree turn
 			if dotP >= 0.0 {
@@ -253,13 +253,13 @@ func TracePathComp(g *gcode.GCode, width float64, flags TPCOptions, path ...gcod
 
 		if crossP*side < 0.0 {
 			// Inside angle move
-			crossP = tpcCrossProd(normal[j], normal[j].Add(normal[j-1])) // sin(angle/2)
-			dotP = normal[j].Dot(normal[j].Add(normal[j-1]).Normalize()) // cos(angle/2)
+			crossP = tpcCrossProd(normal[j], normal[j].Add(normal[(j+npath-1)%npath])) // sin(angle/2)
+			dotP = normal[j].Dot(normal[j].Add(normal[(j+npath-1)%npath]).Normalize()) // cos(angle/2)
 			// End at the projected direction of the next segment
 			g.MoveXYZ(path[j].Add(normal[j].Add(dir[j].MultScalar(side * crossP / dotP)).MultScalar(width)))
 		} else {
 			// Outside angle move
-			g.MoveXYZ(path[j].Add(normal[j-1].MultScalar(width)))
+			g.MoveXYZ(path[j].Add(normal[(j+npath-1)%npath].MultScalar(width)))
 			if i < n-1 { // Only is not last
 				// Arc around the angle
 				if side > 0.0 {
@@ -275,25 +275,25 @@ func TracePathComp(g *gcode.GCode, width float64, flags TPCOptions, path ...gcod
 	i--
 	i = i % npath
 	if flags&TPCArcOut > 0 {
-		p := normal[i-1].Add(dir[i-1]).MultScalar(width)
+		p := normal[(i+npath-1)%npath].Add(dir[(i+npath-1)%npath]).MultScalar(width)
 		if side > 0.0 {
 			g.ArcCWRel(p, width, nil)
 		} else {
 			g.ArcCCWRel(p, width, nil)
 		}
 	} else {
-		p := normal[i-1].MultScalar(width)
+		p := normal[(i+npath-1)%npath].MultScalar(width)
 		g.MoveXYZRel(p)
 	}
 
 	// Return to old Z if requested
 	if flags&TPCOldZ > 0 {
-		g.GotoZ(gcode.Z(prevZ))
+		g.GotoZ(Z(prevZ))
 	}
 	g.Comment("-- tracepath_comp end --")
 }
 
-func calcDirs(side float64, path []gcode.Tuple) (_ []gcode.Tuple, normal []gcode.Tuple, dir []gcode.Tuple) {
+func calcDirs(side float64, path []Tuple) (_ []Tuple, normal []Tuple, dir []Tuple) {
 	npath := len(path)
 	for i := 0; i < npath; i++ {
 		pp := path[i]
@@ -314,25 +314,25 @@ func calcDirs(side float64, path []gcode.Tuple) (_ []gcode.Tuple, normal []gcode
 			continue
 		}
 		dir = append(dir, pc.Sub(pp).Normalize())
-		normal = append(normal, gcode.XY(side*dir[i].Y(), -side*dir[i].X()))
+		normal = append(normal, XY(side*dir[i].Y(), -side*dir[i].X()))
 	}
 	return path, normal, dir
 }
 
-func tpcRecalcDir(side float64, path, dir, normal []gcode.Tuple, idx int) {
-	pp := gcode.XY(path[idx].X(), path[idx].Y())
+func tpcRecalcDir(side float64, path, dir, normal []Tuple, idx int) {
+	pp := XY(path[idx].X(), path[idx].Y())
 	nxt := (idx + 1) % len(path)
-	pc := gcode.XY(path[nxt].X(), path[nxt].Y())
+	pc := XY(path[nxt].X(), path[nxt].Y())
 	dir[idx] = pc.Sub(pp).Normalize()
-	normal[idx] = gcode.XY(side*dir[idx].Y(), -side*dir[idx].X())
+	normal[idx] = XY(side*dir[idx].Y(), -side*dir[idx].X())
 }
 
-func length2D(v gcode.Tuple) float64 {
+func length2D(v Tuple) float64 {
 	return math.Sqrt(v.X()*v.X() + v.Y()*v.Y())
 }
 
 // Cross product divided by length returning sin(angle)
-func tpcCrossProd(v1, v2 gcode.Tuple) float64 {
+func tpcCrossProd(v1, v2 Tuple) float64 {
 	crossP := v1[0]*v2[1] - v1[1]*v2[0]
 	l := length2D(v1) * length2D(v2)
 	if l == 0.0 {

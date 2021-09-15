@@ -54,7 +54,7 @@ func (g *GCode) moveOrGo(opCode string, p Tuple, force int) {
 func (g *GCode) GotoX(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
-		newPos := Point(p.X(), pos.Y(), pos.Z())
+		newPos := XYZ(p.X(), pos.Y(), pos.Z())
 		g.moveOrGo("G0", newPos, forceX)
 	}
 	return g
@@ -64,7 +64,7 @@ func (g *GCode) GotoX(ps ...Tuple) *GCode {
 func (g *GCode) GotoY(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
-		newPos := Point(pos.X(), p.Y(), pos.Z())
+		newPos := XYZ(pos.X(), p.Y(), pos.Z())
 		g.moveOrGo("G0", newPos, forceY)
 	}
 	return g
@@ -74,7 +74,7 @@ func (g *GCode) GotoY(ps ...Tuple) *GCode {
 func (g *GCode) GotoZ(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
-		newPos := Point(pos.X(), pos.Y(), p.Z())
+		newPos := XYZ(pos.X(), pos.Y(), p.Z())
 		g.moveOrGo("G0", newPos, forceZ)
 	}
 	return g
@@ -84,7 +84,7 @@ func (g *GCode) GotoZ(ps ...Tuple) *GCode {
 func (g *GCode) GotoXY(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
-		newPos := Point(p.X(), p.Y(), pos.Z())
+		newPos := XYZ(p.X(), p.Y(), pos.Z())
 		g.moveOrGo("G0", newPos, forceXY)
 	}
 	return g
@@ -94,7 +94,7 @@ func (g *GCode) GotoXY(ps ...Tuple) *GCode {
 func (g *GCode) GotoYZ(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
-		newPos := Point(pos.X(), p.Y(), p.Z())
+		newPos := XYZ(pos.X(), p.Y(), p.Z())
 		g.moveOrGo("G0", newPos, forceYZ)
 	}
 	return g
@@ -104,7 +104,7 @@ func (g *GCode) GotoYZ(ps ...Tuple) *GCode {
 func (g *GCode) GotoXZ(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
-		newPos := Point(p.X(), pos.Y(), p.Z())
+		newPos := XYZ(p.X(), pos.Y(), p.Z())
 		g.moveOrGo("G0", newPos, forceXZ)
 	}
 	return g
@@ -122,7 +122,7 @@ func (g *GCode) GotoXYZ(ps ...Tuple) *GCode {
 func (g *GCode) MoveX(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
-		newPos := Point(p.X(), pos.Y(), pos.Z())
+		newPos := XYZ(p.X(), pos.Y(), pos.Z())
 		g.moveOrGo("G1", newPos, forceX)
 	}
 	return g
@@ -132,7 +132,7 @@ func (g *GCode) MoveX(ps ...Tuple) *GCode {
 func (g *GCode) MoveY(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
-		newPos := Point(pos.X(), p.Y(), pos.Z())
+		newPos := XYZ(pos.X(), p.Y(), pos.Z())
 		g.moveOrGo("G1", newPos, forceY)
 	}
 	return g
@@ -142,7 +142,7 @@ func (g *GCode) MoveY(ps ...Tuple) *GCode {
 func (g *GCode) MoveZ(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
-		newPos := Point(pos.X(), pos.Y(), p.Z())
+		newPos := XYZ(pos.X(), pos.Y(), p.Z())
 		g.moveOrGo("G1", newPos, forceZ)
 	}
 	return g
@@ -152,7 +152,7 @@ func (g *GCode) MoveZ(ps ...Tuple) *GCode {
 func (g *GCode) MoveXY(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
-		newPos := Point(p.X(), p.Y(), pos.Z())
+		newPos := XYZ(p.X(), p.Y(), pos.Z())
 		g.moveOrGo("G1", newPos, forceXY)
 	}
 	return g
@@ -162,7 +162,7 @@ func (g *GCode) MoveXY(ps ...Tuple) *GCode {
 func (g *GCode) MoveYZ(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
-		newPos := Point(pos.X(), p.Y(), p.Z())
+		newPos := XYZ(pos.X(), p.Y(), p.Z())
 		g.moveOrGo("G1", newPos, forceYZ)
 	}
 	return g
@@ -172,7 +172,7 @@ func (g *GCode) MoveYZ(ps ...Tuple) *GCode {
 func (g *GCode) MoveXZ(ps ...Tuple) *GCode {
 	pos := g.Position()
 	for _, p := range ps {
-		newPos := Point(p.X(), pos.Y(), p.Z())
+		newPos := XYZ(p.X(), pos.Y(), p.Z())
 		g.moveOrGo("G1", newPos, forceXZ)
 	}
 	return g

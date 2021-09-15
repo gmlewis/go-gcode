@@ -27,7 +27,7 @@ func gcmc() *GCode {
 	g.Prologue = true
 	g.Epilogue = true
 
-	svec := Point(5, 5, 1)
+	svec := XYZ(5, 5, 1)
 	wheels := []*Wheel{
 		createWheel(10, 1, 0),
 		createWheel(5, 7, 0),
@@ -81,5 +81,5 @@ func cutPath(g *GCode, wheels []*Wheel, start, inc, end, cdepth float64, scale T
 
 func goAtSafeHeight(g *GCode, x, y float64) {
 	g.GotoZ(Z(safeHeight))
-	g.GotoXYZ(Point(x, y, safeHeight))
+	g.GotoXYZ(XYZ(x, y, safeHeight))
 }

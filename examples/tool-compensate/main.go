@@ -50,6 +50,20 @@ func gcmc() *GCode {
 	// run(utils.TPCRight | utils.TPCOldZ)
 	// run(utils.TPCLeft | utils.TPCOldZ)
 
+	HD := 6.0           // Gear center-hole diameter
+	N := 9              // Number of teeth
+	PA := 20.0          // Pressure angle
+	D := 100.0          // Pitch diameter
+	P := float64(N) / D // Diametral pitch
+
+	utils.CCHole(g, XY(120, 0), HD, tw2, tw2/2.0, cutZ)
+	gearpath := XY(120, 0).Offset(utils.GearP(g, N, PA, P)...)
+	trace(g, gearpath, XY(0, 0)) // Show the original path as a rapid
+	gearpath[0][2] = cutZ        // Set cutting depth
+	utils.TracePathComp(g, tw2, utils.TPCRight|utils.TPCOldZ|utils.TPCArcIn|utils.TPCArcOut|utils.TPCClosed, gearpath...)
+
+	g.GotoXYZ(home)
+
 	return g
 }
 

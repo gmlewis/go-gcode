@@ -28,17 +28,17 @@ func Typeset(msg, fontName string) []Tuple {
 			continue
 		}
 
-		vs = append(vs, Point(pts[0][0]-offX, pts[0][1]-offY, 1))
+		vs = append(vs, XYZ(pts[0][0]-offX, pts[0][1]-offY, 1))
 		for _, pt := range pts {
-			vs = append(vs, Point(pt[0]-offX, pt[1]-offY, 0))
+			vs = append(vs, XYZ(pt[0]-offX, pt[1]-offY, 0))
 		}
 		lastPt := pts[len(pts)-1]
-		vs = append(vs, Point(lastPt[0]-offX, lastPt[1]-offY, 1))
+		vs = append(vs, XYZ(lastPt[0]-offX, lastPt[1]-offY, 1))
 	}
 
 	if len(render.Info) > 0 {
 		gi := render.Info[len(render.Info)-1]
-		vs = append(vs, Point(gi.X+gi.Width-offX, gi.Y-offY, 1))
+		vs = append(vs, XYZ(gi.X+gi.Width-offX, gi.Y-offY, 1))
 	}
 
 	return vs

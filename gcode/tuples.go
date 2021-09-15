@@ -46,22 +46,22 @@ func (t Tuple) Z() float64 {
 // 	}
 // 	return t[3]
 // }
-
-// IsPoint identifies the Tuple as a Point.
-func (t Tuple) IsPoint() bool {
-	return len(t) > 3 && t[3] == 1.0
-}
-
-// IsVector identifies the Tuple as a Vector.
-func (t Tuple) IsVector() bool {
-	return len(t) == 0 || t[3] == 0.0
-}
-
-// Point returns a new Tuple as a Point.
-func Point(x, y, z float64) Tuple {
-	return Tuple{x, y, z, 1}
-}
-
+//
+// // IsPoint identifies the Tuple as a Point.
+// func (t Tuple) IsPoint() bool {
+// 	return len(t) > 3 && t[3] == 1.0
+// }
+//
+// // IsVector identifies the Tuple as a Vector.
+// func (t Tuple) IsVector() bool {
+// 	return len(t) == 0 || t[3] == 0.0
+// }
+//
+// // Point returns a new Tuple as a Point.
+// func Point(x, y, z float64) Tuple {
+// 	return Tuple{x, y, z, 1}
+// }
+//
 // // Vector returns a new Tuple as a Vector.
 // func Vector(x, y, z float64) Tuple {
 // 	return Tuple{x, y, z, 0}
@@ -159,7 +159,7 @@ func (t Tuple) Dot(other Tuple) float64 {
 // Cross computes the cross product of two vectors (order matters and this
 // implements t cross other).
 func (t Tuple) Cross(other Tuple) Tuple {
-	return Point( // this is not a ray-tracer - don't use: Vector(
+	return XYZ( // this is not a ray-tracer - don't use: Vector(
 		t.Y()*other.Z()-t.Z()*other.Y(),
 		t.Z()*other.X()-t.X()*other.Z(),
 		t.X()*other.Y()-t.Y()*other.X(),
@@ -190,25 +190,25 @@ func LastXY(vs []Tuple) Tuple {
 }
 
 // X returns a Point with only X set.
-func X(x float64) Tuple { return Point(x, 0, 0) }
+func X(x float64) Tuple { return XYZ(x, 0, 0) }
 
 // Y returns a Point with only Y set.
-func Y(y float64) Tuple { return Point(0, y, 0) }
+func Y(y float64) Tuple { return XYZ(0, y, 0) }
 
 // Z returns a Point with only Z set.
-func Z(z float64) Tuple { return Point(0, 0, z) }
+func Z(z float64) Tuple { return XYZ(0, 0, z) }
 
 // XY returns a Point with only X and Y set.
-func XY(x, y float64) Tuple { return Point(x, y, 0) }
+func XY(x, y float64) Tuple { return XYZ(x, y, 0) }
 
 // YZ returns a Point with only Y and Z set.
-func YZ(y, z float64) Tuple { return Point(0, y, z) }
+func YZ(y, z float64) Tuple { return XYZ(0, y, z) }
 
 // XZ returns a Point with only X and Z set.
-func XZ(x, z float64) Tuple { return Point(x, 0, z) }
+func XZ(x, z float64) Tuple { return XYZ(x, 0, z) }
 
 // XYZ returns a Point.
-func XYZ(x, y, z float64) Tuple { return Point(x, y, z) }
+func XYZ(x, y, z float64) Tuple { return Tuple{x, y, z, 1} }
 
 // Path returns a list of tuples, keeping track of the changes
 // made at each step.
@@ -219,7 +219,7 @@ func XYZ(x, y, z float64) Tuple { return Point(x, y, z) }
 // start at zero). A "-" or empty string means to keep the previous value.
 func Path(ss ...string) []Tuple {
 	var result []Tuple
-	lastPos := Point(0, 0, 0)
+	lastPos := XYZ(0, 0, 0)
 	for _, s := range ss {
 		lastPos = parseDiffs(s, lastPos)
 		result = append(result, lastPos)

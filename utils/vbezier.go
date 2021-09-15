@@ -3,7 +3,7 @@ package utils
 import (
 	"math"
 
-	"github.com/gmlewis/go-gcode/gcode"
+	. "github.com/gmlewis/go-gcode/gcode"
 )
 
 const (
@@ -28,7 +28,7 @@ type VBezierOptions struct {
 // minl		: minimum distance between points
 // Output:
 // Vectorlist of points excluding b0 and exactly ending at b3
-func VBezier3(b0, b1, b2, b3 gcode.Tuple, opts *VBezierOptions) []gcode.Tuple {
+func VBezier3(b0, b1, b2, b3 Tuple, opts *VBezierOptions) []Tuple {
 	flatness, minL := defaultFlatness, defaultMinL
 	if opts != nil {
 		flatness = opts.Flatness
@@ -38,7 +38,7 @@ func VBezier3(b0, b1, b2, b3 gcode.Tuple, opts *VBezierOptions) []gcode.Tuple {
 	return genBezier(b0, b1, b2, b3, flatness, minL)
 }
 
-func genBezier(b0, b1, b2, b3 gcode.Tuple, flatness, minL float64) []gcode.Tuple {
+func genBezier(b0, b1, b2, b3 Tuple, flatness, minL float64) []Tuple {
 	l := b0.Add(b1).MultScalar(0.5)
 	m := b1.Add(b2).MultScalar(0.5)
 	r := b2.Add(b3).MultScalar(0.5)
@@ -51,7 +51,7 @@ func genBezier(b0, b1, b2, b3 gcode.Tuple, flatness, minL float64) []gcode.Tuple
 	// curve to the sides is handled by ensuring that left and right
 	// node-to-conrol points must adhere to the same minimum length.
 	if (t.Sub(b0).Magnitude()+b3.Sub(t).Magnitude()) < minL && r.Sub(l).Magnitude() < minL {
-		return []gcode.Tuple{t, b3}
+		return []Tuple{t, b3}
 	}
 
 	// cos(Angles) as seen from both sides should sum to 2.0 within
@@ -64,13 +64,13 @@ func genBezier(b0, b1, b2, b3 gcode.Tuple, flatness, minL float64) []gcode.Tuple
 	// relative to the minL argument. This reduces the perpendicular
 	// deviation from the curve to a minimum.
 	if b3.Sub(b0).Magnitude()/minL*(2.0-math.Abs(cprv-cplv)) < flatness {
-		return []gcode.Tuple{b3}
+		return []Tuple{b3}
 	}
 
 	// Otherwise, return the points with bisected recursion.
 	left := genBezier(b0, l, lm, t, flatness, minL)
 	right := genBezier(t, rm, r, b3, flatness, minL)
-	result := append([]gcode.Tuple{}, left[0:len(left)-1]...)
+	result := append([]Tuple{}, left[0:len(left)-1]...)
 	result = append(result, t)
 	result = append(result, right[0:len(right)-1]...)
 	result = append(result, b3)

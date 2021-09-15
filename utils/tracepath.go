@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/gmlewis/go-gcode/gcode"
+	. "github.com/gmlewis/go-gcode/gcode"
 )
 
 // TracePath traces a path.
@@ -18,14 +18,14 @@ import (
 // path - vectorlist containing XY points
 //
 // Return value: none
-func TracePath(g *gcode.GCode, z, dw float64, path ...gcode.Tuple) {
+func TracePath(g *GCode, z, dw float64, path ...Tuple) {
 	if len(path) == 0 {
 		return
 	}
 	g.Comment("-- tracepath at Z=", z, " --")
 	oldZ := g.Position().Z()
 	g.GotoXY(path[0])
-	g.MoveZ(gcode.Z(z))
+	g.MoveZ(Z(z))
 	if dw >= 0.0 {
 		g.Dwell(dw)
 	}
@@ -39,6 +39,6 @@ func TracePath(g *gcode.GCode, z, dw float64, path ...gcode.Tuple) {
 	if dw >= 0.0 {
 		g.Dwell(dw)
 	}
-	g.MoveZ(gcode.Z(oldZ))
+	g.MoveZ(Z(oldZ))
 	g.Comment("-- tracepath end --")
 }
