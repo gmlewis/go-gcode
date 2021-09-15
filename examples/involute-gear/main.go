@@ -199,7 +199,7 @@ func halfTooth(baseDiameter, outsideDiameter, rootDiameter, workDiameter float64
 
 	// Center of the fillet arc, involute makes a ~240deg angle with fillet arc.
 	// The fillet arc runs from the root to the working depth of the gear.
-	center := RotationZ(toRad(60)).MultTuple(X(-filletrad)).Add(Vector(workDiameter/2, 0, 0))
+	center := RotationZ(toRad(60)).MultTuple(X(-filletrad)).Add(XYZ(workDiameter/2, 0, 0))
 
 	// Trace the fillet arc from ~root-circle to working depth at involute arc starting Y-level
 	var a float64

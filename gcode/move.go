@@ -45,6 +45,7 @@ func (g *GCode) moveOrGo(opCode string, p Tuple, force int) {
 	if s == "" {
 		return
 	}
+	p[3] = 1
 	g.steps = append(g.steps, &Step{s: s, pos: p})
 	g.hasMoved = true
 }

@@ -38,13 +38,14 @@ func (t Tuple) Z() float64 {
 	return t[2]
 }
 
-// W returns the W value of the Tuple.
-func (t Tuple) W() float64 {
-	if len(t) == 0 {
-		return 0
-	}
-	return t[3]
-}
+// This is not a ray-tracer - do not use W.
+// // W returns the W value of the Tuple.
+// func (t Tuple) W() float64 {
+// 	if len(t) == 0 {
+// 		return 0
+// 	}
+// 	return t[3]
+// }
 
 // IsPoint identifies the Tuple as a Point.
 func (t Tuple) IsPoint() bool {
@@ -61,17 +62,18 @@ func Point(x, y, z float64) Tuple {
 	return Tuple{x, y, z, 1}
 }
 
-// Vector returns a new Tuple as a Vector.
-func Vector(x, y, z float64) Tuple {
-	return Tuple{x, y, z, 0}
-}
+// // Vector returns a new Tuple as a Vector.
+// func Vector(x, y, z float64) Tuple {
+// 	return Tuple{x, y, z, 0}
+// }
 
 // Equal tests if two Tuples are equal.
 func (t Tuple) Equal(other Tuple) bool {
 	return math.Abs(t.X()-other.X()) < epsilon &&
 		math.Abs(t.Y()-other.Y()) < epsilon &&
-		math.Abs(t.Z()-other.Z()) < epsilon &&
-		math.Abs(t.W()-other.W()) < epsilon
+		math.Abs(t.Z()-other.Z()) < epsilon
+	// this is not a ray-tracer - don't compare w.
+	// math.Abs(t.W()-other.W()) < epsilon
 }
 
 // Add adds two Tuples and returns a new one.
@@ -80,7 +82,7 @@ func (t Tuple) Add(other Tuple) Tuple {
 		t.X() + other.X(),
 		t.Y() + other.Y(),
 		t.Z() + other.Z(),
-		t.W() + other.W(),
+		1, // this is not a ray-tracer - keep w=1 // t.W() + other.W(),
 	}
 }
 
@@ -101,7 +103,7 @@ func (t Tuple) Sub(other Tuple) Tuple {
 		t.X() - other.X(),
 		t.Y() - other.Y(),
 		t.Z() - other.Z(),
-		t.W() - other.W(),
+		1, // this is not a ray-tracer - keep w=1 // t.W() - other.W(),
 	}
 }
 
@@ -111,7 +113,7 @@ func (t Tuple) Negate() Tuple {
 		-t.X(),
 		-t.Y(),
 		-t.Z(),
-		-t.W(),
+		1, // this is not a ray-tracer - keep w=1 // -t.W(),
 	}
 }
 
@@ -121,7 +123,7 @@ func (t Tuple) MultScalar(f float64) Tuple {
 		f * t.X(),
 		f * t.Y(),
 		f * t.Z(),
-		f * t.W(),
+		1, // this is not a ray-tracer - keep w=1 // f * t.W(),
 	}
 }
 
@@ -135,8 +137,8 @@ func (t Tuple) Magnitude() float64 {
 	return math.Sqrt(
 		t.X()*t.X() +
 			t.Y()*t.Y() +
-			t.Z()*t.Z() +
-			t.W()*t.W())
+			t.Z()*t.Z())
+	// this is not a ray-tracer - don't consider w. // t.W()*t.W())
 }
 
 // Normalize normalizes a vector to a unit vector (of length 1).
@@ -150,14 +152,14 @@ func (t Tuple) Normalize() Tuple {
 func (t Tuple) Dot(other Tuple) float64 {
 	return t.X()*other.X() +
 		t.Y()*other.Y() +
-		t.Z()*other.Z() +
-		t.W()*other.W()
+		t.Z()*other.Z()
+	// this is not a ray-tracer - don't consider w. // t.W()*other.W()
 }
 
 // Cross computes the cross product of two vectors (order matters and this
 // implements t cross other).
 func (t Tuple) Cross(other Tuple) Tuple {
-	return Vector(
+	return Point( // this is not a ray-tracer - don't use: Vector(
 		t.Y()*other.Z()-t.Z()*other.Y(),
 		t.Z()*other.X()-t.X()*other.Z(),
 		t.X()*other.Y()-t.Y()*other.X(),
