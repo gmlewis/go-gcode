@@ -184,3 +184,13 @@ func (g *GCode) MoveXYZ(ps ...Tuple) *GCode {
 	}
 	return g
 }
+
+// MoveXYZRel performs one or more move(s) on the XYZ axes at the current feed-rate
+// using relative offsets.
+func (g *GCode) MoveXYZRel(ps ...Tuple) *GCode {
+	for _, p := range ps {
+		pos := g.Position()
+		g.moveOrGo("G1", pos.Add(p), forceXYZ)
+	}
+	return g
+}

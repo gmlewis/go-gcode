@@ -74,13 +74,101 @@ func TracePathComp(g *gcode.GCode, width float64, flags TPCOptions, path ...gcod
 		flags |= TPCClosed
 	}
 
-	normal, dir := calcDirs(side, path)
-
-	// Find all sharp inside corners and remove them as we cannot enter them.
-	// This may still leave a "reversible", but that we can handle in the main loop.
+	var normal, dir []gcode.Tuple
+	path, normal, dir = calcDirs(side, path)
 
 	var warnRemove int
-	// TODO!!!
+	// Find all sharp inside corners and remove them as we cannot enter them.
+	// This may still leave a "reversible", but that we can handle in the main loop.
+	npath := len(path)
+	for i := 1; i < npath; i++ {
+		crossP := tpcCrossProd(dir[i-1], dir[i])
+		dotP := dir[i-1].Dot(dir[i])
+		if math.Abs(crossP) < epsilon && math.Abs(dotP+1) < epsilon { // crossP==0 && dotP==-1
+			// Reversal of the path
+			if tpcCrossProd(dir[(i+npath-2)%npath], dir[i-1])*side > 0.0 {
+				// Reversal on wrong side of path, delete point and ensure
+				// that any duplicate gets removed by recalculating the lot.
+				path = append(path[:i], path[i+1:]...)
+				path, normal, dir = calcDirs(side, path)
+				npath = len(path)
+				i--
+				warnRemove++
+			} // else the reversal is on the correct side and we may walk around.
+		} else if crossP*side < 0.0 && dotP < 0.0 {
+			// An internal angle detected... see if we can fit into it
+			tmp := normal[i].Add(normal[i-1])
+			crossP = side * tpcCrossProd(normal[i], tmp) // sin(angle/2)
+			dotP = normal[i].Dot(tmp.Normalize())        // cos(angle/2)
+			tmp = path[i].Sub(path[i-1])
+			li := gcode.XY(tmp.X(), tmp.Y()).Magnitude() // Entry segment into sharp internal edge
+			tmp = path[(i+1)%npath].Sub(path[i])
+			lo := gcode.XY(tmp.X(), tmp.Y()).Magnitude() // Exit segment into sharp internal edge
+			lm := width * crossP / dotP                  // Bisected calculated move distance
+			if lm <= li && lm <= lo {
+				continue // we can fit
+			}
+			warnRemove++
+			if li > lo {
+				// Entry segment is longer, project exit onto entry segment
+				var tag float64
+				if !normal[(i+1)%npath].Equal(dir[i]) {
+					// Bottom of the pit has not a 90 degree turn to the top exit
+					// Tag lifts bottom to 90 degree
+					tag = lo * (dir[i].Dot(normal[(i+1)%npath]))
+				} else {
+					// Bottom already exits at 90 degrees
+					tag = lo
+				}
+				// Move the next point onto the entry segment
+				tmpDot := normal[(i+1)%npath].Dot(dir[i-1].Negate())
+				path[(i+1)%npath] = path[i].Sub(dir[i-1].MultScalar(tag / tmpDot))
+				// and delete this point
+				path = append(path[:i], path[i+1:]...)
+				dir = append(dir[:i], dir[i+1:]...)
+				normal = append(normal[:i], normal[i+1:]...)
+				npath--
+				tpcRecalcDir(side, path, dir, normal, i-1)
+				tpcRecalcDir(side, path, dir, normal, i)
+				tpcRecalcDir(side, path, dir, normal, (i+1)%npath)
+				i--
+			} else if li < lo {
+				// Exit segment is longer, project entry onto exit segment
+				var tag float64
+				if !normal[(i+npath-2)%npath].Equal(dir[i-1].Negate()) {
+					// Bottom of the pit has not a 90 degree turn to the top entry
+					// Tag lifts bottom to 90 degree
+					tag = li * dir[i-1].Negate().Dot(normal[(i+npath-2)%npath])
+				} else {
+					// Bottom already entered at 90 degrees
+					tag = li
+				}
+				// Move the bottom pit point up along the exit segment
+				dotP = normal[(i+npath-2)%npath].Dot(dir[i])
+				if math.Abs(dotP) < epsilon {
+					dotP = 1.0
+				}
+				path[i] = path[i].Add(dir[i].MultScalar(tag / dotP))
+				// and delete the previous point
+				path = append(path[:i-1], path[i:]...)
+				dir = append(dir[:i-1], dir[i:]...)
+				normal = append(normal[:i-1], normal[i:]...)
+				npath--
+				tpcRecalcDir(side, path, dir, normal, (i+npath-2)%npath)
+				tpcRecalcDir(side, path, dir, normal, i-1)
+				tpcRecalcDir(side, path, dir, normal, i)
+				i--
+			} else {
+				// Both entry and exit are same length, remove the point
+				path = append(path[:i], path[i+1:]...)
+				dir = append(dir[:i], dir[i+1:]...)
+				normal = append(normal[:i], normal[i+1:]...)
+				tpcRecalcDir(side, path, dir, normal, i-1)
+				tpcRecalcDir(side, path, dir, normal, i)
+				i--
+			}
+		}
+	}
 
 	if warnRemove > 0 && !(flags&TPCQuiet > 0) {
 		log.Printf("Removed %v unreachable internal corner(s)", warnRemove)
@@ -119,14 +207,67 @@ func TracePathComp(g *gcode.GCode, width float64, flags TPCOptions, path ...gcod
 	}
 
 	// A closed path ends at the first point, loop once more
-	npath := len(path)
+	npath = len(path)
 	n := npath
 	if flags&TPCClosed > 0 {
 		n++
 	}
 
 	var i int
-	//TODO!!!
+	for i = 1; i < n; i++ {
+		j := i % npath
+		crossP := tpcCrossProd(dir[i-1], dir[j])
+		dotP := dir[j-1].Dot(dir[j])
+		if math.Abs(crossP) < epsilon {
+			// Co-linear or 180 degree turn
+			if dotP >= 0.0 {
+				if i < npath-1 {
+					// Co-linear, delete the point
+					path = append(path[:i], path[i+1:]...)
+					dir = append(dir[:i], dir[i+1:]...)
+					normal = append(normal[:i], normal[i+1:]...)
+					i--
+					n--
+					npath--
+				} else {
+					// Don't delete the last entry for closure
+					g.MoveXYZ(path[j].Add(normal[j].MultScalar(width)))
+				}
+			} else {
+				// 180 degree turn; wrong side 180'ies have already been deleted
+				// Move to end of segment
+				g.MoveXYZ(path[j].Sub(normal[j].MultScalar(width)))
+				if i < n-1 { // Only if not last
+					// Arc with 180 degrees
+					if side > 0.0 {
+						g.ArcCCWRel(normal[j].MultScalar(width*2.0), width, nil)
+					} else {
+						g.ArcCWRel(normal[j].MultScalar(width*2.0), width, nil)
+					}
+				}
+			}
+			continue
+		}
+
+		if crossP*side < 0.0 {
+			// Inside angle move
+			crossP = tpcCrossProd(normal[j], normal[j].Add(normal[j-1])) // sin(angle/2)
+			dotP = normal[j].Dot(normal[j].Add(normal[j-1]).Normalize()) // cos(angle/2)
+			// End at the projected direction of the next segment
+			g.MoveXYZ(path[j].Add(normal[j].Add(dir[j].MultScalar(side * crossP / dotP)).MultScalar(width)))
+		} else {
+			// Outside angle move
+			g.MoveXYZ(path[j].Add(normal[j-1].MultScalar(width)))
+			if i < n-1 { // Only is not last
+				// Arc around the angle
+				if side > 0.0 {
+					g.ArcCCW(path[j].Add(normal[j].MultScalar(width)), width, nil)
+				} else {
+					g.ArcCW(path[j].Add(normal[j].MultScalar(width)), width, nil)
+				}
+			}
+		}
+	}
 
 	// Exit the path
 	i--
@@ -150,8 +291,8 @@ func TracePathComp(g *gcode.GCode, width float64, flags TPCOptions, path ...gcod
 	g.Comment("-- tracepath_comp end --")
 }
 
-func calcDirs(side float64, path []gcode.Tuple) (npath int, path []gcode.Tuple, normal []gcode.Tuple, dir []gcode.Tuple) {
-	npath = len(path)
+func calcDirs(side float64, path []gcode.Tuple) (_ []gcode.Tuple, normal []gcode.Tuple, dir []gcode.Tuple) {
+	npath := len(path)
 	for i := 0; i < npath; i++ {
 		pp := path[i]
 		pc := path[(i+1)%npath]
@@ -171,9 +312,17 @@ func calcDirs(side float64, path []gcode.Tuple) (npath int, path []gcode.Tuple, 
 			continue
 		}
 		dir = append(dir, pc.Sub(pp).Normalize())
-		normal = append(normal, XY(side*dir[i].Y(), -side*dir[i].X()))
+		normal = append(normal, gcode.XY(side*dir[i].Y(), -side*dir[i].X()))
 	}
-	return npath, path, normal, dir
+	return path, normal, dir
+}
+
+func tpcRecalcDir(side float64, path, dir, normal []gcode.Tuple, idx int) {
+	pp := gcode.XY(path[idx].X(), path[idx].Y())
+	nxt := (idx + 1) % len(path)
+	pc := gcode.XY(path[nxt].X(), path[nxt].Y())
+	dir[idx] = pc.Sub(pp).Normalize()
+	normal[idx] = gcode.XY(side*dir[idx].Y(), -side*dir[idx].X())
 }
 
 func length2D(v gcode.Tuple) float64 {

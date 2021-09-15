@@ -39,7 +39,7 @@ func gcmc() *GCode {
 	path[0][2] = cutZ // Set the cutting depth at the first point
 
 	run := func(opts utils.TPCOptions) {
-		utils.TracePathComp(path, tw2, opts)
+		utils.TracePathComp(g, tw2, opts, path...)
 	}
 
 	// Choose your test trace by uncommenting the line(s) you want to see
