@@ -4,20 +4,7 @@ import (
 	"github.com/gmlewis/go-gcode/gcode"
 )
 
-// TPCOptions control how TracePathComp behaves.
-type TPCOptions int
-
-const (
-	TPCArcIn TPCOptions = 1 << iota
-	TPCArcOut
-	TPCClosed
-	TPCLeft
-	TPCOldZ
-	TPCQuiet
-	TPCRight
-)
-
-// tracepath() - Trace a path
+// TracePath traces a path.
 // Operation:
 // - Goto last path entry
 // - Move to cutting depth z
