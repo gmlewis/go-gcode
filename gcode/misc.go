@@ -15,6 +15,12 @@ func (g *GCode) Feedrate(rate float64) *GCode {
 	return g
 }
 
+// Literal injects a literal string into the GCode instructions.
+func (g *GCode) Literal(s string) *GCode {
+	g.steps = append(g.steps, &Step{s: s, pos: g.Position()})
+	return g
+}
+
 // Float returns a pointer to a float64 which is useful for options.
 func Float(v float64) *float64 {
 	return &v
