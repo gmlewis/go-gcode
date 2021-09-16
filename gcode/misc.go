@@ -16,8 +16,13 @@ func (g *GCode) Feedrate(rate float64) *GCode {
 }
 
 // Literal injects a literal string into the GCode instructions.
-func (g *GCode) Literal(s string) *GCode {
-	g.steps = append(g.steps, &Step{s: s, pos: g.Position()})
+// If newPos is non-nil, the internal new position will be updated.
+func (g *GCode) Literal(s string, newPos *Tuple) *GCode {
+	if newPos == nil {
+		v := g.Position()
+		newPos = &v
+	}
+	g.steps = append(g.steps, &Step{s: s, pos: *newPos})
 	return g
 }
 
