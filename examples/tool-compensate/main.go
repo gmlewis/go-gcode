@@ -36,8 +36,7 @@ func gcmc() *GCode {
 	path = Scaling(10, 10, 0).Transform(path...) // Scale to something visibly useful
 	trace(g, path, Z(safeZ))                     // Show a rapid path to see the difference
 
-	path[0][2] = cutZ // Set the cutting depth at the first point
-
+	path = Z(cutZ).Offset(path...) // Set the cutting depth for all points
 	run := func(opts utils.TPCOptions) {
 		utils.TracePathComp(g, tw2, opts, path...)
 	}
@@ -58,8 +57,8 @@ func gcmc() *GCode {
 
 	utils.CCHole(g, XY(120, 0), HD, tw2, tw2/2.0, cutZ)
 	gearpath := XY(120, 0).Offset(utils.GearP(g, N, PA, P)...)
-	trace(g, gearpath, XY(0, 0)) // Show the original path as a rapid
-	gearpath[0][2] = cutZ        // Set cutting depth
+	trace(g, gearpath, XY(0, 0))           // Show the original path as a rapid
+	gearpath = Z(cutZ).Offset(gearpath...) // Set cutting depth
 	utils.TracePathComp(g, tw2, utils.TPCRight|utils.TPCOldZ|utils.TPCArcIn|utils.TPCArcOut|utils.TPCClosed, gearpath...)
 
 	g.GotoXYZ(home)

@@ -1,6 +1,4 @@
 *.gcode
-*.png
-*.ppm
 *.sh
 *.stl
 *.zip

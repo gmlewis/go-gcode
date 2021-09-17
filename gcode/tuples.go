@@ -152,8 +152,8 @@ func (t Tuple) Normalize() Tuple {
 func (t Tuple) Dot(other Tuple) float64 {
 	return t.X()*other.X() +
 		t.Y()*other.Y() +
-		t.Z()*other.Z()
-	// this is not a ray-tracer - don't consider w. // t.W()*other.W()
+		t.Z()*other.Z() +
+		t[3]*other[3] // Must consider W to perform translation in matrix multiplies!
 }
 
 // Cross computes the cross product of two vectors (order matters and this

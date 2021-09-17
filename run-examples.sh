@@ -1,5 +1,5 @@
 #!/bin/bash -ex
-for i in examples/*; do
-    dir=${i#"examples/"}
-    go run ${i}/main.go > ${dir}.gcode
+DIRS=$(cd examples && find . -mindepth 1 -type d -printf '%f ')
+for dir in ${DIRS}; do
+    go run examples/${dir}/main.go > ${dir}.gcode
 done

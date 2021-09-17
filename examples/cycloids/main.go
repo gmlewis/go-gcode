@@ -41,7 +41,7 @@ func gcmc() *GCode {
 		eTroch := doChoid(p, 2, epitrochoidPoint)
 		f := 30.0 / maxW
 		utils.TracePath(g, -1, -1, Scaling(f, f, f).Translate(2.1*30*i, -30, 0).Transform(hTroch...)...)
-		utils.TracePath(g, -1, -1, Scaling(f, f, f).Translate(2.1*30*i, -30, 0).Transform(eTroch...)...)
+		utils.TracePath(g, -1, -1, Scaling(f, f, f).Translate(2.1*30*i, 30, 0).Transform(eTroch...)...)
 		i += 1.0
 	}
 

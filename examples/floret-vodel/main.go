@@ -36,20 +36,15 @@ func gcmc() *GCode {
 	for n := 1.0; n <= 500.0; n += 1.0 {
 		r := c * math.Sqrt(n)
 		p := n * ga
-		list = append(list, XY(r*math.Sin(p), r*math.Cos(p)))
+		list = append(list, XYZ(r*math.Sin(p), r*math.Cos(p), drillZ))
 	}
 
 	sList := XY(90, -35).Offset(sortList(list)...)
 	bList := XY(0, 145).Offset(binningSort(list, 20)...)
 	list = XY(-90, -35).Offset(list...)
 
-	list[0][2] = drillZ
 	utils.CannedDrill(g, safeZ, -1, false, list...)
-
-	sList[0][2] = drillZ
 	utils.CannedDrill(g, safeZ, -1, false, sList...)
-
-	bList[0][2] = drillZ
 	utils.CannedDrill(g, safeZ, -1, false, bList...)
 
 	return g
@@ -66,7 +61,7 @@ func gcmc() *GCode {
 func sortList(list []Tuple) []Tuple {
 	lst := make([]*Tuple, len(list))
 	for i, v := range list { // Make a copy of list
-		t := XY(v.X(), v.Y())
+		t := XYZ(v.X(), v.Y(), v.Z())
 		lst[i] = &t
 	}
 
@@ -74,7 +69,7 @@ func sortList(list []Tuple) []Tuple {
 	lst = lst[0 : len(lst)-1]
 	numLeft := len(lst)
 	for numLeft > 0 {
-		p := LastXY(res) // point to measure from
+		p := res[len(res)-1] // point to measure from
 		tag := -1
 		var length float64
 		for i, v := range lst {
