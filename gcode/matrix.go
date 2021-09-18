@@ -18,24 +18,37 @@ func (m M4) Equal(other M4) bool {
 		m[3].Equal(other[3])
 }
 
+// full4Dot computes the dot product (aka "scalar product" or "inner product")
+// of two vectors (Tuples). The dot product is the cosine of the angle
+// between two unit vectors.
+// This version is needed for M4 full matrix multiples but should not be
+// used for general dot products of XYZ tuples in GCode scripts, as the W
+// factor messes up the dot products on points since they are actually vectors.
+func (t Tuple) full4Dot(other Tuple) float64 {
+	return t.X()*other.X() +
+		t.Y()*other.Y() +
+		t.Z()*other.Z() +
+		t[3]*other[3] // Must consider W to perform translation in matrix multiplies!
+}
+
 // Mult multiplies two M4 matrices. Order is important.
 func (m M4) Mult(other M4) M4 {
 	oc := M4{other.Column(0), other.Column(1), other.Column(2), other.Column(3)}
 	return M4{
-		Tuple{m[0].Dot(oc[0]), m[0].Dot(oc[1]), m[0].Dot(oc[2]), m[0].Dot(oc[3])},
-		Tuple{m[1].Dot(oc[0]), m[1].Dot(oc[1]), m[1].Dot(oc[2]), m[1].Dot(oc[3])},
-		Tuple{m[2].Dot(oc[0]), m[2].Dot(oc[1]), m[2].Dot(oc[2]), m[2].Dot(oc[3])},
-		Tuple{m[3].Dot(oc[0]), m[3].Dot(oc[1]), m[3].Dot(oc[2]), m[3].Dot(oc[3])},
+		Tuple{m[0].full4Dot(oc[0]), m[0].full4Dot(oc[1]), m[0].full4Dot(oc[2]), m[0].full4Dot(oc[3])},
+		Tuple{m[1].full4Dot(oc[0]), m[1].full4Dot(oc[1]), m[1].full4Dot(oc[2]), m[1].full4Dot(oc[3])},
+		Tuple{m[2].full4Dot(oc[0]), m[2].full4Dot(oc[1]), m[2].full4Dot(oc[2]), m[2].full4Dot(oc[3])},
+		Tuple{m[3].full4Dot(oc[0]), m[3].full4Dot(oc[1]), m[3].full4Dot(oc[2]), m[3].full4Dot(oc[3])},
 	}
 }
 
-// MultTuple multiples a M4 matrix by a tuple.
+// MultTuple multiples an M4 matrix by a tuple.
 func (m M4) MultTuple(other Tuple) Tuple {
 	return Tuple{
-		m[0].Dot(other),
-		m[1].Dot(other),
-		m[2].Dot(other),
-		m[3].Dot(other),
+		m[0].full4Dot(other),
+		m[1].full4Dot(other),
+		m[2].full4Dot(other),
+		m[3].full4Dot(other),
 	}
 }
 

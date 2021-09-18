@@ -149,11 +149,13 @@ func (t Tuple) Normalize() Tuple {
 // Dot computes the dot product (aka "scalar product" or "inner product")
 // of two vectors (Tuples). The dot product is the cosine of the angle
 // between two unit vectors.
+// This public version is to be used with XYZ vectors and can not be
+// used for full 4x4 matrix multiplies.
 func (t Tuple) Dot(other Tuple) float64 {
 	return t.X()*other.X() +
 		t.Y()*other.Y() +
-		t.Z()*other.Z() +
-		t[3]*other[3] // Must consider W to perform translation in matrix multiplies!
+		t.Z()*other.Z()
+	// this is not a ray-tracer - don't consider w. // t.W()*t.W())
 }
 
 // Cross computes the cross product of two vectors (order matters and this
@@ -166,7 +168,7 @@ func (t Tuple) Cross(other Tuple) Tuple {
 	)
 }
 
-// Reflect reflects a vector around a prodived normal vector.
+// Reflect reflects a vector around a provided normal vector.
 func (t Tuple) Reflect(normal Tuple) Tuple {
 	return t.Sub(normal.MultScalar(2.0 * t.Dot(normal)))
 }

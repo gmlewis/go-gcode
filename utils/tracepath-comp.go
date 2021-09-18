@@ -192,7 +192,8 @@ func TracePathComp(g *GCode, width float64, flags TPCOptions, path ...Tuple) {
 	if flags&TPCArcIn > 0 {
 		p := path[0].Add(normal[0].MultScalar(2).Sub(dir[0]).MultScalar(width))
 		// log.Printf("path[0]=%v, normal[0]=%v, dir[0]=%v, p=%v", path[0], normal[0], dir[0], p)
-		g.GotoXY(p)  // Rapid without Z
+		g.GotoXY(p) // Rapid without Z
+		// g.Comment("GML: MoveXYZ - A")
 		g.MoveXYZ(p) // Move with Z
 		// Arc into the first segment's start point
 		p = path[0].Add(normal[0].MultScalar(width))
@@ -204,7 +205,8 @@ func TracePathComp(g *GCode, width float64, flags TPCOptions, path ...Tuple) {
 		}
 	} else {
 		p := path[0].Add(normal[0].MultScalar(2.0 * width))
-		g.GotoXY(p)  // Rapid without Z
+		g.GotoXY(p) // Rapid without Z
+		// g.Comment("GML: MoveXYZ - B")
 		g.MoveXYZ(p) // Move with Z
 	}
 
@@ -233,11 +235,13 @@ func TracePathComp(g *GCode, width float64, flags TPCOptions, path ...Tuple) {
 					npath--
 				} else {
 					// Don't delete the last entry for closure
+					// g.Comment("GML: MoveXYZ - C")
 					g.MoveXYZ(path[j].Add(normal[j].MultScalar(width)))
 				}
 			} else {
 				// 180 degree turn; wrong side 180'ies have already been deleted
 				// Move to end of segment
+				// g.Comment("GML: MoveXYZ - D")
 				g.MoveXYZ(path[j].Sub(normal[j].MultScalar(width)))
 				if i < n-1 { // Only if not last
 					// Arc with 180 degrees
@@ -255,10 +259,14 @@ func TracePathComp(g *GCode, width float64, flags TPCOptions, path ...Tuple) {
 			// Inside angle move
 			crossP = tpcCrossProd(normal[j], normal[j].Add(normal[(j+npath-1)%npath])) // sin(angle/2)
 			dotP = normal[j].Dot(normal[j].Add(normal[(j+npath-1)%npath]).Normalize()) // cos(angle/2)
+			// g.Comment("GML: MoveXYZ - dotP: normal[j]=", normal[j], ", normal[j-1]=", normal[j-1], ", normal[j]+normal[j-1]=", normal[j].Add(normal[(j+npath-1)%npath]), " normalize(normal[j]+normal[j-1])=", normal[j].Add(normal[(j+npath-1)%npath]).Normalize(), ", dotP=", dotP)
 			// End at the projected direction of the next segment
-			g.MoveXYZ(path[j].Add(normal[j].Add(dir[j].MultScalar(side * crossP / dotP)).MultScalar(width)))
+			tmp := path[j].Add(normal[j].Add(dir[j].MultScalar(side * crossP / dotP)).MultScalar(width))
+			// g.Comment("GML: MoveXYZ - E: crossP=", crossP, ", dotP=", dotP, ", path[j]=", path[j], ", normal[j]=", normal[j], ", dir[j]=", dir[j], ", tmp=", tmp)
+			g.MoveXYZ(tmp)
 		} else {
 			// Outside angle move
+			// g.Comment("GML: MoveXYZ - F")
 			g.MoveXYZ(path[j].Add(normal[(j+npath-1)%npath].MultScalar(width)))
 			if i < n-1 { // Only is not last
 				// Arc around the angle
@@ -283,6 +291,7 @@ func TracePathComp(g *GCode, width float64, flags TPCOptions, path ...Tuple) {
 		}
 	} else {
 		p := normal[(i+npath-1)%npath].MultScalar(width)
+		// g.Comment("GML: MoveXYZRel - G")
 		g.MoveXYZRel(p)
 	}
 
