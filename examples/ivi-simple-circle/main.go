@@ -20,7 +20,8 @@ const (
 )
 
 var (
-	home = XYZ(0, 0, 10)
+	home   = XYZ(0, 0, 10)
+	offset = XY(0, -4)
 )
 
 func main() {
@@ -37,7 +38,7 @@ func gcmc() *GCode {
 	toolRadius := 0.5 * MilToMM(toolDiam)
 
 	g.GotoXYZ(home)
-	utils.CCHole(g, XY(0, 0), targetRadius, toolRadius, cutStep, cutZ)
+	utils.CCHole(g, offset, targetRadius, toolRadius, cutStep, cutZ)
 
 	g.GotoXYZ(home)
 

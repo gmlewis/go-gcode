@@ -11,7 +11,7 @@ func (g *GCode) Comment(args ...interface{}) *GCode {
 	for _, arg := range args {
 		parts = append(parts, fmt.Sprintf("%v", arg))
 	}
-	s := fmt.Sprintf("(%v)", strings.Join(parts, ""))
+	s := fmt.Sprintf(g.commentFmt, strings.Join(parts, ""))
 
 	step := &Step{s: s, pos: g.Position()}
 	g.steps = append(g.steps, step)
