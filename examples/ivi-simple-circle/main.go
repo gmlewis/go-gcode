@@ -13,10 +13,11 @@ import (
 )
 
 const (
-	spindleDiam = 20.4         // mm
-	toolDiam    = 1000.0 / 8.0 // mils
-	cutStep     = 1.1
-	cutZ        = -1.0
+	spindleDiam = 21.0 // mm
+	// toolDiam    = 1000.0 / 8.0 // mils
+	toolDiam = 35.9 // mils
+	cutStep  = 0.5
+	cutZ     = -1.0
 )
 
 var (
@@ -32,7 +33,7 @@ func main() {
 func gcmc() *GCode {
 	g := New(UseIVI)
 
-	g.Feedrate(300)
+	g.Feedrate(30)
 
 	targetRadius := 0.5 * spindleDiam
 	toolRadius := 0.5 * MilToMM(toolDiam)
