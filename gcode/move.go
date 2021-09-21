@@ -148,6 +148,20 @@ func (g *GCode) MoveZ(ps ...Tuple) *GCode {
 	return g
 }
 
+// MoveZWithF performs one or more move(s) on the Z axis using the provided feed-rate.
+func (g *GCode) MoveZWithF(feedrate float64, ps ...Tuple) *GCode {
+	pos := g.Position()
+	for i, p := range ps {
+		newPos := XYZ(pos.X(), pos.Y(), p.Z())
+		g.moveOrGo("G1", newPos, forceZ)
+		if i == 0 {
+			lastStep := len(g.steps) - 1
+			g.steps[lastStep].s += fmt.Sprintf(" F%.8f", feedrate)
+		}
+	}
+	return g
+}
+
 // MoveXY performs one or more move(s) on the XY axes at the current feed-rate.
 func (g *GCode) MoveXY(ps ...Tuple) *GCode {
 	pos := g.Position()

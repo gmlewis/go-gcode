@@ -13,11 +13,11 @@ import (
 )
 
 const (
-	spindleDiam = 21.0 // mm
+	spindleDiam = 22.0 // mm
 	// toolDiam    = 1000.0 / 8.0 // mils
 	toolDiam = 35.9 // mils
 	cutStep  = 0.5
-	cutZ     = -1.0
+	cutZ     = -4.0
 )
 
 var (
