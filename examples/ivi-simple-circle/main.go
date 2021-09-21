@@ -21,7 +21,7 @@ const (
 
 var (
 	home   = XYZ(0, 0, 10)
-	offset = XY(0, -4)
+	offset = XY(0, -3.5)
 )
 
 func main() {
