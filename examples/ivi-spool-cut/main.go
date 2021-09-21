@@ -17,7 +17,7 @@ const (
 
 	cutStep  = 0.5
 	cutZ     = -4.0
-	feedrate = 80
+	feedrate = 60
 	safeZ    = 5.0
 )
 
@@ -34,7 +34,7 @@ func main() {
 func gcmc() *GCode {
 	g := New(UseIVI)
 
-	g.GotoXYZ(home)
+	g.GotoZ(Z(safeZ))
 	g.GotoXY(offset.Add(X(0.5 * spindleDiam)))
 	g.MoveZWithF(feedrate, Z(cutZ))
 	g.MoveX(offset.Add(X(0.5 * wireFinalDiam)))
