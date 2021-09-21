@@ -14,9 +14,11 @@ import (
 const (
 	spindleDiam   = 22.0 // mm
 	wireFinalDiam = 48.0 // mm
-	cutStep       = 0.5
-	cutZ          = -4.0
-	safeZ         = 5.0
+
+	cutStep  = 0.5
+	cutZ     = -4.0
+	feedrate = 80
+	safeZ    = 5.0
 )
 
 var (
@@ -34,14 +36,14 @@ func gcmc() *GCode {
 
 	g.GotoXYZ(home)
 	g.GotoXY(offset.Add(X(0.5 * spindleDiam)))
-	g.MoveZWithF(300, Z(cutZ))
+	g.MoveZWithF(feedrate, Z(cutZ))
 	g.MoveX(offset.Add(X(0.5 * wireFinalDiam)))
-	g.GotoZ(Z(safeZ))
+	g.MoveZ(Z(safeZ))
 
 	g.GotoXY(offset.Add(X(-0.5 * spindleDiam)))
 	g.MoveZ(Z(cutZ))
 	g.MoveX(offset.Add(X(-0.5 * wireFinalDiam)))
-	g.GotoZ(Z(safeZ))
+	g.MoveZ(Z(safeZ))
 
 	g.GotoXYZ(home)
 
