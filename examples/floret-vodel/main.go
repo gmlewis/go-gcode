@@ -20,9 +20,7 @@ func main() {
 }
 
 func gcmc() *GCode {
-	g := New()
-	g.Prologue = true
-	g.Epilogue = true
+	g := New(UseGeneric)
 
 	safeZ := 1.0   // Safe Z-level
 	drillZ := -3.0 // Drilling depth

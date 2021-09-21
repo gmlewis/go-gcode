@@ -23,7 +23,7 @@ func TestHalfTooth(t *testing.T) {
 	)
 
 	ht := halfTooth(baseDiameter, outsideDiameter, rootDiameter, workDiameter)
-	g := New()
+	g := New(NoHeader)
 	trace(g, ht, X(D/2))
 	got := strings.Split(g.String(), "\n")
 	want := strings.Split(halfToothOut, "\n")
@@ -50,7 +50,7 @@ func TestRotatedHalfTooth(t *testing.T) {
 	)
 
 	rht := rotatedHalfTooth(baseDiameter, outsideDiameter, rootDiameter, workDiameter, N)
-	g := New()
+	g := New(NoHeader)
 	trace(g, rht, X(D/2))
 	got := strings.Split(g.String(), "\n")
 	want := strings.Split(rotatedHalfToothOut, "\n")
@@ -78,7 +78,7 @@ func TestMirroredTooth(t *testing.T) {
 
 	rht := rotatedHalfTooth(baseDiameter, outsideDiameter, rootDiameter, workDiameter, N)
 	mht := mirrorTooth(rht)
-	g := New()
+	g := New(NoHeader)
 	trace(g, mht, X(D/2))
 	got := strings.Split(g.String(), "\n")
 	want := strings.Split(mirroredToothOut, "\n")

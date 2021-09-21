@@ -18,9 +18,7 @@ func main() {
 }
 
 func gcmc() *GCode {
-	g := New()
-	g.Prologue = true
-	g.Epilogue = true
+	g := New(UseGeneric)
 
 	msg := "MSG,"
 	homePos := XYZ(0, 0, 0)

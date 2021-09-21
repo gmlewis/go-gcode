@@ -3,7 +3,7 @@ package gcode
 import "testing"
 
 func TestMoveOrGoto(t *testing.T) {
-	g := New()
+	g := New(NoHeader)
 	g.GotoXYZ(XYZ(-145, -30, -1))
 	g.MoveZ(Z(0))
 	g.MoveXYZ(XYZ(-139.5, 30, 0))

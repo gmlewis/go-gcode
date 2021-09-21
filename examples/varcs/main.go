@@ -24,9 +24,7 @@ func main() {
 }
 
 func gcmc() *GCode {
-	g := New()
-	g.Prologue = true
-	g.Epilogue = true
+	g := New(UseGeneric)
 
 	g.Feedrate(600)
 

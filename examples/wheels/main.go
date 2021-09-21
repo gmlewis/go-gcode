@@ -23,9 +23,7 @@ func main() {
 }
 
 func gcmc() *GCode {
-	g := New()
-	g.Prologue = true
-	g.Epilogue = true
+	g := New(UseGeneric)
 
 	svec := XYZ(5, 5, 1)
 	wheels := []*Wheel{

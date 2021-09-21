@@ -37,9 +37,7 @@ func main() {
 }
 
 func gcmc() *GCode {
-	g := New()
-	g.Prologue = true
-	g.Epilogue = true
+	g := New(UseGeneric)
 
 	g.Comment("-- feed        ", Feedrate, " --")
 	g.Comment("-- origin      ", Origin, " --")

@@ -9,32 +9,60 @@ import (
 
 // GCode represents a G-Code design.
 type GCode struct {
-	Prologue bool
-	Epilogue bool
+	noHeader bool
+	prologue string
+	epilogue string
 
 	activePlane PlaneT
 	hasMoved    bool
 	steps       []*Step
 }
 
+// Option represents various options for generating GCode.
+type Option string
+
+var (
+	NoHeader   Option = "NoHeader"
+	UseIVI     Option = "UseIVI"
+	UseGeneric Option = "UseGeneric"
+)
+
 // New returns a new gcode design.
-func New() *GCode {
-	return &GCode{activePlane: PlaneXY}
+func New(opts ...Option) *GCode {
+	g := &GCode{activePlane: PlaneXY}
+
+	for _, opt := range opts {
+		switch opt {
+		case NoHeader:
+			g.noHeader = true
+		case UseIVI:
+			g.prologue = iviPrologue
+			g.epilogue = iviEpilogue
+		case UseGeneric:
+			g.prologue = genericPrologue
+			g.epilogue = genericEpilogue
+		}
+	}
+
+	return g
 }
 
 // String converts the design to a string.
 func (g *GCode) String() string {
 	var lines []string
-	if g.Prologue {
+	if !g.noHeader {
 		const timeFmt = "2006-01-02 15:04:05"
 		now := time.Now().Local()
-		lines = append(lines, fmt.Sprintf(prologue, now.Format(timeFmt)))
+		lines = append(lines, fmt.Sprintf(identifier, now.Format(timeFmt)))
+	}
+	if g.prologue != "" {
+		lines = append(lines, g.prologue)
 	}
 	for _, step := range g.steps {
 		lines = append(lines, step.s)
 	}
-	if g.Epilogue {
-		lines = append(lines, epilogue)
+	if g.epilogue != "" {
+		lines = append(lines, g.epilogue)
 	}
 	return strings.Join(lines, "\n") + "\n"
 }
@@ -53,9 +81,10 @@ func (g *GCode) Position() Tuple {
 	return g.steps[len(g.steps)-1].pos
 }
 
-var prologue = `(go-gcode compiled code, do not change)
-(%v)
-(-- prologue begin --)
+var identifier = `(go-gcode compiled code, do not change)
+(%v)`
+
+var genericPrologue = `(-- prologue begin --)
 G17 ( Use XY plane )
 G21 ( Use mm )
 G40 ( Cancel cutter radius compensation )
@@ -67,5 +96,20 @@ G94 ( Units Per Minute feed rate mode )
 G64 ( Enable path blending for best speed )
 (-- prologue end --)`
 
-var epilogue = `(-- epilogue begin --)
+var genericEpilogue = `(-- epilogue begin --)
 M30 (-- epilogue end --)`
+
+var iviPrologue = `(-- prologue begin --)
+G17 ( Use XY plane )
+G21 ( Use mm )
+G90 ( Use absolute distance mode )
+G0 Z10.00 F400
+G0 X-1.19 Y-11.57 F400
+G0 Z5.00 F400
+M3 P100 (Start spindle clockwise, 100% Power)
+G0 Z5.00 F3000
+(-- prologue end --)`
+
+var iviEpilogue = `(-- epilogue begin --)
+M5 (Stop spindle)
+(-- epilogue end --)`
