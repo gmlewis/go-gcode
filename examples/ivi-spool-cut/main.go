@@ -17,7 +17,7 @@ const (
 
 	cutStep  = 0.5
 	cutZ     = -4.0
-	feedrate = 80
+	feedrate = 100
 	safeZ    = 5.0
 )
 
@@ -35,17 +35,19 @@ func gcmc() *GCode {
 	g := New(UseIVI)
 
 	g.GotoZ(Z(safeZ))
-	g.GotoXY(offset.Add(X(0.5 * spindleDiam)))
-	g.MoveZWithF(feedrate, Z(cutZ))
-	g.MoveX(offset.Add(X(0.5 * wireFinalDiam)))
-	g.MoveX(offset.Add(X(0.5 * spindleDiam)))
-	g.MoveZ(Z(safeZ))
 
-	g.GotoXY(offset.Add(X(-0.5 * spindleDiam)))
-	g.MoveZ(Z(cutZ))
-	g.MoveX(offset.Add(X(-0.5 * wireFinalDiam)))
-	g.MoveX(offset.Add(X(-0.5 * spindleDiam)))
-	g.MoveZ(Z(safeZ))
+	doCut := func(fromX, toX float64) {
+		g.GotoXY(offset.Add(X(fromX)))
+		g.MoveZWithF(feedrate, Z(cutZ))
+		g.MoveX(offset.Add(X(toX)))
+		g.MoveZ(Z(safeZ))
+	}
+
+	doCut(0.5*spindleDiam, 0.5*wireFinalDiam)
+	doCut(0.5*spindleDiam, 0.5*wireFinalDiam)
+
+	doCut(-0.5*spindleDiam, -0.5*wireFinalDiam)
+	doCut(-0.5*spindleDiam, -0.5*wireFinalDiam)
 
 	g.GotoXYZ(home)
 
