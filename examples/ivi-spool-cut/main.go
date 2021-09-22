@@ -36,18 +36,20 @@ func gcmc() *GCode {
 
 	g.GotoZ(Z(safeZ))
 
-	doCut := func(fromX, toX float64) {
+	doCut := func(fromX, toX, speed float64) {
 		g.GotoXY(offset.Add(X(fromX)))
-		g.MoveZWithF(feedrate, Z(cutZ))
+		g.MoveZWithF(speed, Z(cutZ))
 		g.MoveX(offset.Add(X(toX)))
 		g.MoveZ(Z(safeZ))
 	}
 
-	doCut(0.5*spindleDiam, 0.5*wireFinalDiam)
-	doCut(0.5*spindleDiam, 0.5*wireFinalDiam)
+	doCut(0.5*spindleDiam, 0.5*wireFinalDiam, feedrate)
+	doCut(0.5*spindleDiam, 0.5*wireFinalDiam, 2*feedrate)
+	doCut(0.5*spindleDiam, 0.5*wireFinalDiam, 3*feedrate)
 
-	doCut(-0.5*spindleDiam, -0.5*wireFinalDiam)
-	doCut(-0.5*spindleDiam, -0.5*wireFinalDiam)
+	doCut(-0.5*spindleDiam, -0.5*wireFinalDiam, feedrate)
+	doCut(-0.5*spindleDiam, -0.5*wireFinalDiam, 2*feedrate)
+	doCut(-0.5*spindleDiam, -0.5*wireFinalDiam, 3*feedrate)
 
 	g.GotoXYZ(home)
 
