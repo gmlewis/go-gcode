@@ -23,7 +23,7 @@ const (
 
 var (
 	home   = XYZ(0, 0, 10)
-	offset = XY(0, 0)
+	offset = XY(0, 10)
 )
 
 func main() {
@@ -44,12 +44,12 @@ func gcmc() *GCode {
 	}
 
 	doCut(0.5*spindleDiam, 0.5*wireFinalDiam, feedrate)
-	doCut(0.5*spindleDiam, 0.5*wireFinalDiam, 2*feedrate)
 	doCut(0.5*spindleDiam, 0.5*wireFinalDiam, 3*feedrate)
+	doCut(0.5*spindleDiam, 0.5*wireFinalDiam, 5*feedrate)
 
 	doCut(-0.5*spindleDiam, -0.5*wireFinalDiam, feedrate)
-	doCut(-0.5*spindleDiam, -0.5*wireFinalDiam, 2*feedrate)
 	doCut(-0.5*spindleDiam, -0.5*wireFinalDiam, 3*feedrate)
+	doCut(-0.5*spindleDiam, -0.5*wireFinalDiam, 5*feedrate)
 
 	g.GotoXYZ(home)
 
