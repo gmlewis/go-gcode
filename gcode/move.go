@@ -110,10 +110,22 @@ func (g *GCode) GotoXZ(ps ...Tuple) *GCode {
 	return g
 }
 
-// GotoXYZ performs one or more rapid move(s) on the XYZ axis.
+// GotoXYZ performs one or more rapid move(s) on the XYZ axes.
 func (g *GCode) GotoXYZ(ps ...Tuple) *GCode {
 	for _, p := range ps {
 		g.moveOrGo("G0", p, forceXYZ)
+	}
+	return g
+}
+
+// GotoXYZWithF performs one or more move(s) on the XYZ axes using the provided feed-rate.
+func (g *GCode) GotoXYZWithF(feedrate float64, ps ...Tuple) *GCode {
+	for i, p := range ps {
+		g.moveOrGo("G0", p, forceXYZ)
+		if i == 0 {
+			lastStep := len(g.steps) - 1
+			g.steps[lastStep].s += fmt.Sprintf(" F%v", feedrate)
+		}
 	}
 	return g
 }
@@ -156,7 +168,7 @@ func (g *GCode) MoveZWithF(feedrate float64, ps ...Tuple) *GCode {
 		g.moveOrGo("G1", newPos, forceZ)
 		if i == 0 {
 			lastStep := len(g.steps) - 1
-			g.steps[lastStep].s += fmt.Sprintf(" F%.8f", feedrate)
+			g.steps[lastStep].s += fmt.Sprintf(" F%v", feedrate)
 		}
 	}
 	return g
