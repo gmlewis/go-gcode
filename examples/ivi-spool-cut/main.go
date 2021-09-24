@@ -23,7 +23,7 @@ const (
 
 var (
 	home   = XYZ(0, 0, 10)
-	offset = XY(0, 5)
+	offset = XY(0, 0)
 )
 
 func main() {

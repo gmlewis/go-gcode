@@ -40,7 +40,8 @@ func New(opts ...Option) *GCode {
 		case NoHeader:
 			g.noHeader = true
 		case UseIVI:
-			g.prologue = iviPrologue
+			g.steps = []*Step{{s: iviPrologue, pos: XYZ(0, 0, 5)}}
+			g.hasMoved = true
 			g.epilogue = iviEpilogue
 			g.commentFmt = ";%v"
 		case UseGeneric:
@@ -108,7 +109,7 @@ G17 ;Use XY plane
 G21 ;Use mm
 G90 ;Use absolute distance mode
 G0 Z10.00 F400
-G0 X-1.19 Y-11.57 F400
+G0 X0.00 Y0.00 F400
 G0 Z5.00 F400
 M3 P100 ;Start spindle clockwise, 100% Power
 G0 Z5.00 F3000
