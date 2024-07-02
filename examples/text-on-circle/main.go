@@ -2,21 +2,22 @@
 // https://gitlab.com/gcmc/gcmc/blob/master/example/text-on-circle.gcmc
 //
 // Usage:
-//   go run examples/text-on-circle/main.go > text-on-circle.gcode
+//
+//	go run examples/text-on-circle/main.go > text-on-circle.gcode
 package main
 
 import (
 	"fmt"
 	"math"
 
-	_ "github.com/gmlewis/go-fonts/fonts/allura_regular"
-	_ "github.com/gmlewis/go-fonts/fonts/amerikasans"
-	_ "github.com/gmlewis/go-fonts/fonts/freesans"
-	_ "github.com/gmlewis/go-fonts/fonts/freeserif"
-	_ "github.com/gmlewis/go-fonts/fonts/freeserifbold"
-	_ "github.com/gmlewis/go-fonts/fonts/freeserifbolditalic"
-	_ "github.com/gmlewis/go-fonts/fonts/freeserifitalic"
-	_ "github.com/gmlewis/go-fonts/fonts/grandhotel_regular"
+	_ "github.com/gmlewis/go-fonts-a/fonts/allura_regular"
+	_ "github.com/gmlewis/go-fonts-a/fonts/amerikasans"
+	_ "github.com/gmlewis/go-fonts-f/fonts/freesans"
+	_ "github.com/gmlewis/go-fonts-f/fonts/freeserif"
+	_ "github.com/gmlewis/go-fonts-f/fonts/freeserifbold"
+	_ "github.com/gmlewis/go-fonts-f/fonts/freeserifbolditalic"
+	_ "github.com/gmlewis/go-fonts-f/fonts/freeserifitalic"
+	_ "github.com/gmlewis/go-fonts-g/fonts/grandhotel_regular"
 	. "github.com/gmlewis/go-gcode/gcode"
 	"github.com/gmlewis/go-gcode/utils"
 )
