@@ -2,7 +2,8 @@
 // https://gitlab.com/gcmc/gcmc/blob/master/example/bezier.gcmc
 //
 // Usage:
-//   go run examples/bezier/main.go > bezier.gcode
+//
+//	go run examples/bezier/main.go > bezier.gcode
 package main
 
 import (

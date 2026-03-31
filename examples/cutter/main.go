@@ -2,7 +2,8 @@
 // https://gitlab.com/gcmc/gcmc/blob/master/example/cutter.gcmc
 //
 // Usage:
-//   go run examples/cutter/main.go > cutter.gcode
+//
+//	go run examples/cutter/main.go > cutter.gcode
 package main
 
 import (

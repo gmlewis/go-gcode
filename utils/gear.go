@@ -95,11 +95,15 @@ const angleStepDeg = 2 // Trace interval for curves, in degrees.
 
 // Point on involute curve at specified angle in degrees, see https://en.wikipedia.org/wiki/Involute
 // Cartesian:
+//
 //	x = a * ( cos(t) + t * sin(t))
 //	y = a * ( sin(t) - t * cos(t))
+//
 // Polar:
+//
 //	r   = a * sqrt(1 + t^2) = sqrt(a^2 + (a*t)^2)
 //	phi = t - atan(t)
+//
 // where:
 // - a = circle radius
 // - t = angle (radians)

@@ -2,7 +2,8 @@
 // https://gitlab.com/gcmc/gcmc/blob/master/example/edm-pro-box.gcmc
 //
 // Usage:
-//   go run examples/edm-pro-box/main.go > edm-pro-box.gcode
+//
+//	go run examples/edm-pro-box/main.go > edm-pro-box.gcode
 package main
 
 import (

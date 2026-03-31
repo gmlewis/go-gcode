@@ -34,11 +34,11 @@ const (
 // Optional dwells for dw seconds at each path entry.
 //
 // Input:
-// - width	Distance from path to trace at
-// - path	Path to trace. The first coordinate should include a cutting
-//		Z-level which is moved to before entering the path. Changing
-//		the Z-level is allowed at any point as long as each XY position
-//		is unique.
+//   - width	Distance from path to trace at
+//   - path	Path to trace. The first coordinate should include a cutting
+//     Z-level which is moved to before entering the path. Changing
+//     the Z-level is allowed at any point as long as each XY position
+//     is unique.
 //
 // Return value: none
 func TracePathComp(g *GCode, width float64, flags TPCOptions, path ...Tuple) {

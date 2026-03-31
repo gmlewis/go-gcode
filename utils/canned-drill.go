@@ -13,20 +13,20 @@ const (
 // Canned drilling cycle with/without dwell at bottom.
 //
 // Input:
-// - retractZ: scalar
-//      Defines the Z-coordinate to retract to (R-plane).
-// - dw: scalar
-//      Time to dwell at the bottom of the hole. If negative, no dwelling is
-//      performed.
-// - oldZ: bool
-//      True assures that each cycle returns to the original
-//      Z-position. False indicates to remain at the R-plane.
-// - holes: vectorlist
-//      List of coordinates to drill. Must include at least one entry and the
-//      first vector in the list must include a Z-coordinate to define the
-//      drilling depth. Each subsequent vector must include at least one X or Y
-//      coordinate or possibly both. Each vector may include a Z-coordinate to
-//      define a new drilling depth.
+//   - retractZ: scalar
+//     Defines the Z-coordinate to retract to (R-plane).
+//   - dw: scalar
+//     Time to dwell at the bottom of the hole. If negative, no dwelling is
+//     performed.
+//   - oldZ: bool
+//     True assures that each cycle returns to the original
+//     Z-position. False indicates to remain at the R-plane.
+//   - holes: vectorlist
+//     List of coordinates to drill. Must include at least one entry and the
+//     first vector in the list must include a Z-coordinate to define the
+//     drilling depth. Each subsequent vector must include at least one X or Y
+//     coordinate or possibly both. Each vector may include a Z-coordinate to
+//     define a new drilling depth.
 func CannedDrill(g *GCode, retractZ, dw float64, oldZ bool, holes ...Tuple) {
 	prevZ := g.Position().Z()
 
@@ -74,20 +74,20 @@ func CannedDrill(g *GCode, retractZ, dw float64, oldZ bool, holes ...Tuple) {
 // Canned drilling cycle with peck.
 //
 // Input:
-// - retractZ: scalar
-//      Defines the Z-coordinate to retract to (R-plane).
-// - delta: scalar
-//      Incremental drill depth for each peck cycle. The value of delta must be
-//      larger than 0.0.
-// - oldZ: bool
-//      True assures that each cycle returns to the original
-//      Z-position. False indicates to remain at the R-plane.
-// - holes: vectorlist
-//      List of coordinates to drill. Must include at least one entry and the
-//      first vector in the list must include a Z-coordinate to define the
-//      drilling depth. Each subsequent vector must include at least one X or Y
-//      coordinate or possibly both. Each vector may include a Z-coordinate to
-//      define a new drilling depth.
+//   - retractZ: scalar
+//     Defines the Z-coordinate to retract to (R-plane).
+//   - delta: scalar
+//     Incremental drill depth for each peck cycle. The value of delta must be
+//     larger than 0.0.
+//   - oldZ: bool
+//     True assures that each cycle returns to the original
+//     Z-position. False indicates to remain at the R-plane.
+//   - holes: vectorlist
+//     List of coordinates to drill. Must include at least one entry and the
+//     first vector in the list must include a Z-coordinate to define the
+//     drilling depth. Each subsequent vector must include at least one X or Y
+//     coordinate or possibly both. Each vector may include a Z-coordinate to
+//     define a new drilling depth.
 func CannedDrillPeck(g *GCode, retractZ, delta float64, oldZ bool, holes ...Tuple) {
 	if delta <= 0.0 {
 		log.Fatal("delta must be > 0")

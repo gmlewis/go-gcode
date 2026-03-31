@@ -2,7 +2,8 @@
 // https://gitlab.com/gcmc/gcmc/blob/master/example/trochoidal.gcmc
 //
 // Usage:
-//   go run examples/trochoidal/main.go > trochoidal.gcode
+//
+//	go run examples/trochoidal/main.go > trochoidal.gcode
 package main
 
 import (

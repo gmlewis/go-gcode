@@ -2,7 +2,8 @@
 // https://gitlab.com/gcmc/gcmc/blob/master/example/varcs.gcmc
 //
 // Usage:
-//   go run examples/varcs/main.go > varcs.gcode
+//
+//	go run examples/varcs/main.go > varcs.gcode
 package main
 
 import (

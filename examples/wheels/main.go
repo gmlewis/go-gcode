@@ -2,7 +2,8 @@
 // https://gitlab.com/gcmc/gcmc/blob/master/example/wheels.gcmc
 //
 // Usage:
-//   go run examples/wheels/main.go > wheels.gcode
+//
+//	go run examples/wheels/main.go > wheels.gcode
 package main
 
 import (

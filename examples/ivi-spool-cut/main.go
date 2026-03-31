@@ -2,7 +2,8 @@
 // on the IVI Closed-Loop 3D Printer/CNC/Laser-Engraver: https://ivi3d.com
 //
 // Usage:
-//   go run examples/ivi-spool-cut/main.go > ivi-spool-cut.gcode
+//
+//	go run examples/ivi-spool-cut/main.go > ivi-spool-cut.gcode
 package main
 
 import (

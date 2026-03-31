@@ -2,7 +2,8 @@
 // https://gitlab.com/gcmc/gcmc/blob/master/example/canned.gcmc
 //
 // Usage:
-//   go run examples/canned/main.go > canned.gcode
+//
+//	go run examples/canned/main.go > canned.gcode
 package main
 
 import (

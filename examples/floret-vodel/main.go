@@ -2,7 +2,8 @@
 // https://gitlab.com/gcmc/gcmc/blob/master/example/floret-vogel.gcmc
 //
 // Usage:
-//   go run examples/floret-vogel/main.go > floret-vogel.gcode
+//
+//	go run examples/floret-vogel/main.go > floret-vogel.gcode
 package main
 
 import (

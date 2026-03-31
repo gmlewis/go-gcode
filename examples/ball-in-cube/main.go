@@ -2,7 +2,8 @@
 // https://gitlab.com/gcmc/gcmc/blob/master/example/ball-in-cube.gcmc
 //
 // Usage:
-//   go run examples/ball-in-cube/main.go > ball-in-cube.gcode
+//
+//	go run examples/ball-in-cube/main.go > ball-in-cube.gcode
 package main
 
 import (

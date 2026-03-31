@@ -2,7 +2,8 @@
 // https://gitlab.com/gcmc/gcmc/blob/master/example/cc_hole.gcmc
 //
 // Usage:
-//   go run examples/cc-hole/main.go > cc-hole.gcode
+//
+//	go run examples/cc-hole/main.go > cc-hole.gcode
 package main
 
 import (

@@ -2,7 +2,8 @@
 // on the IVI Closed-Loop 3D Printer/CNC/Laser-Engraver: https://ivi3d.com
 //
 // Usage:
-//   go run examples/ivi-simple-circle/main.go > ivi-simple-circle.gcode
+//
+//	go run examples/ivi-simple-circle/main.go > ivi-simple-circle.gcode
 package main
 
 import (

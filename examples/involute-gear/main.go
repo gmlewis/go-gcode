@@ -2,7 +2,8 @@
 // https://gitlab.com/gcmc/gcmc/blob/master/example/involute-gear.gcmc
 //
 // Usage:
-//   go run examples/involute-gear/main.go > gear.gcode
+//
+//	go run examples/involute-gear/main.go > gear.gcode
 package main
 
 import (

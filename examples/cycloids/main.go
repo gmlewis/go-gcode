@@ -2,7 +2,8 @@
 // https://gitlab.com/gcmc/gcmc/blob/master/example/cycloids.gcmc
 //
 // Usage:
-//   go run examples/cycloids/main.go > cycloids.gcode
+//
+//	go run examples/cycloids/main.go > cycloids.gcode
 package main
 
 import (

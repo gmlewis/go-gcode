@@ -2,7 +2,8 @@
 // https://gitlab.com/gcmc/gcmc/blob/master/example/tool-compensate.gcmc
 //
 // Usage:
-//   go run examples/tool-compensate/main.go > tool-compensate.gcode
+//
+//	go run examples/tool-compensate/main.go > tool-compensate.gcode
 package main
 
 import (

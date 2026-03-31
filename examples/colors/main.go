@@ -2,7 +2,8 @@
 // https://gitlab.com/gcmc/gcmc/blob/master/example/colors.gcmc
 //
 // Usage:
-//   go run examples/colors/main.go > colors.gcode
+//
+//	go run examples/colors/main.go > colors.gcode
 package main
 
 import (
